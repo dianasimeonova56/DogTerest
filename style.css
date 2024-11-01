@@ -58,15 +58,13 @@ header {
     border-radius: 5px;
 }
 
-/* Scrollable content wrapper with margin-top to account for header */
 .content-wrapper {
-    margin-top: 60px; /* Offset for the fixed header height */
-    height: calc(100vh - 60px); /* Full viewport height minus header height */
-    overflow-y: auto; /* Scrollable content area */
-    padding: 20px; /* Optional padding for content */
+    margin-top: 60px;
+    height: calc(100vh - 60px);
+    overflow-y: auto;
+    padding: 20px;
 }
 
-/* Main Dashboard Content */
 #dashboard {
     display: flex;
     align-items: center;
@@ -83,4 +81,70 @@ header {
     padding: 20px;
     text-align: center;
     margin: 20px;
+}
+
+.login-container {
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 10px; /* Rounded corners */
+    padding: 30px; /* Padding for container */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); /* Shadow for depth */
+    width: 100%; /* Full width to support responsiveness */
+    max-width: 400px; /* Set a max-width for larger screens */
+    text-align: center; /* Center text */
+    margin: 0 auto; /* Center the container */
+}
+
+.login-container h1 {
+    margin: 0 0 20px; /* Space below the heading */
+    font-size: 24px; /* Font size */
+    color: #cdb2f5; /* Color */
+}
+
+.login-container label {
+    display: block; /* Block display for labels */
+    margin-bottom: 5px; /* Space below labels */
+    text-align: left; /* Align text to the left */
+    color: #333; /* Dark color for readability */
+}
+
+.login-container input[type="text"],
+.login-container input[type="password"],
+.login-container input[type="email"],
+.login-container input[type="date"] {
+    width: 100%; /* Full width for inputs */
+    padding: 12px; /* Padding for inputs */
+    margin-bottom: 15px; /* Space below inputs */
+    border: 1px solid #ddd; /* Light border */
+    border-radius: 5px; /* Rounded edges */
+    font-size: 16px; /* Font size */
+}
+
+.login-container button {
+    background: #cdb2f5; /* Button color */
+    color: white; /* Button text color */
+    border: none; /* No border */
+    padding: 12px; /* Padding for button */
+    border-radius: 5px; /* Rounded edges */
+    cursor: pointer; /* Pointer on hover */
+    font-size: 16px; /* Font size */
+    width: 100%; /* Full width */
+    transition: background 0.3s; /* Transition for hover effect */
+}
+
+.login-container input[type="submit"]:hover {
+    background: #a36cbf; /* Darker shade on hover */
+}
+
+.login-container p {
+    margin-top: 15px; /* Space above paragraph */
+    font-size: 14px; /* Font size */
+}
+
+.login-container a {
+    color: #cdb2f5; /* Link color */
+    text-decoration: none; /* No underline */
+}
+
+.login-container a:hover {
+    text-decoration: underline; /* Underline on hover */
 }

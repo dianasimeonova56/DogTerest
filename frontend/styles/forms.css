@@ -16,11 +16,17 @@
     color: #cdb2f5; 
 }
 
+.login-container h2 {
+    margin: 0 0 20px; 
+    font-size: 18px; 
+    color: #cdb2f5; 
+}
+
 .login-container label {
     display: block; 
-    margin-bottom: 5px; 
+    margin-top: 10px;
+    margin-bottom: 10px; 
     text-align: center; 
-    color: #333; 
     font-size: 20px; 
     color: #cdb2f5; 
 }

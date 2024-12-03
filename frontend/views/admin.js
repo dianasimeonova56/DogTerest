@@ -1,7 +1,7 @@
+import page from '../../node_modules/page/page.mjs';
 import { html, render } from '../../node_modules/lit-html/lit-html.js'
 import { main } from '../app.js';
-import { getUsers, updateUser } from '../auth.js';
-import { createSubmitHandler } from '../util.js';
+import { deleteUser, getUsers, updateUser } from '../auth.js';
 
 export const adminTemplate = (onUserClick, onDelete, onEdit, users) => html`
 <section>
@@ -14,19 +14,19 @@ export const adminTemplate = (onUserClick, onDelete, onEdit, users) => html`
             </div>
             <form>
                 <input type="text" name="id" placeholder="ID" id="user_id" readonly>
-                <input type="text" name="fullname" placeholder="First Name" id="firstname">
-                <input type="text" name="fullname" placeholder="Last Name" id="lastname">
+                <input type="text" name="first_name" placeholder="First Name" id="first_name">
+                <input type="text" name="last_name" placeholder="Last Name" id="last_name">
                 <input type="text" name="email" placeholder="Email" id="email">
                 <label for="cars">Role:</label>
                 <select id="role" name="roles" size="2" >
                 <option value="user">User</option>
                 <option value="admin">Admin</option>
                 </select>
-                <div class="button-group">
-                    <button type="submit" @submit=${onEdit}>Edit</button>
-                    <button type="submit" @submit=${onDelete}>Delete</button>
-                </div>
             </form>
+                <div class="button-group">
+                    <button type="button" @click=${onEdit}>Edit</button>
+                    <button type="button" @click=${onDelete}>Delete</button>
+                </div>
         </div>
     </section>
 `
@@ -35,12 +35,12 @@ export async function adminPage() {
     const users = await getUsers();
     console.log(users);
 
-    render(adminTemplate(onUserClick, onDelete, createSubmitHandler(onEdit), users), main)
+    render(adminTemplate(onUserClick, onDelete, onEdit, users), main)
 
     function onUserClick(user) {
         document.getElementById('user_id').value = user.user_id;
-        document.getElementById('firstname').value = user.first_name || '';
-        document.getElementById('lastname').value = user.last_name || '';
+        document.getElementById('first_name').value = user.first_name || '';
+        document.getElementById('last_name').value = user.last_name || '';
         document.getElementById('email').value = user.email;
         document.getElementById('role').value = user.is_admin ? 'admin' : 'user';
     }
@@ -49,32 +49,42 @@ export async function adminPage() {
         debugger
         e.preventDefault();
         let is_admin = document.getElementById('role').value;
-    is_admin = is_admin === 'user' ? 0 : 1;
+        is_admin = is_admin === 'user' ? 0 : 1;
 
-    const first_name = document.getElementById('firstname').value;
-    const last_name = document.getElementById('lastname').value;
-    const email = document.getElementById('email').value;
+        const user_id = document.getElementById('user_id').value
+        const first_name = document.getElementById('first_name').value;
+        const last_name = document.getElementById('last_name').value;
+        const email = document.getElementById('email').value;
 
-    const user = {
-        first_name: first_name,
-        last_name: last_name,
-        email: email,
-        is_admin: is_admin
-    };
+        const user = {
+            user_id: user_id,
+            first_name: first_name,
+            last_name: last_name,
+            email: email,
+            is_admin: is_admin 
+        };
 
-    try {
-        await updateUser(user);
-        page.redirect("/dashboard");
-    } catch (error) {
-        alert(error.message);
-        console.log("Login error:", error);
+        try {
+            await updateUser(user);
+            alert('User updated successfully')
+            page.reload()
+        } catch (error) {
+            alert(error.message);
+            console.log("Login error:", error);
+        }
     }
-    }
 
-    function onDelete(user) {
-        //delete request
-        //USERS array for now
-        // USERS.splice(USERS.indexOf(user), 1);
-        // render(adminTemplate(onUserClick, onDelete), main);
+    async function onDelete() {
+        const user_id = document.getElementById("user_id").value;
+        if (window.confirm('Are you sure you want to delete this user?')) {
+            try {
+                await deleteUser({"user_id": user_id});
+                alert('User deleted successfully')
+                page.reload();
+            } catch (error) {
+                alert(error.message);
+                console.log("Login error:", error);
+            }
+        }
     }
 }

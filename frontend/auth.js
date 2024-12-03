@@ -1,6 +1,6 @@
 // auth.js
 import { setUserData, clearUserData } from './util.js';
-import { post, get, patch } from './api.js';
+import { post, get, patch, del } from './api.js';
 
 const endpoints = {
     login: '/signin',
@@ -8,7 +8,8 @@ const endpoints = {
     logout: '/logout',
     catalog: '/dashboard',
     getUsers: '/get_users',
-    updateUser: '/update_user'
+    updateUser: '/update_user',
+    deleteUser: '/delete_user',
 };
 
 export async function login({ email, password }) {
@@ -30,6 +31,12 @@ export async function getUsers() {
     return userData.users;
 }
 
-export async function updateUser(data) {
-    return await patch(endpoints.updateUser, data);
+export async function updateUser(user) {
+    debugger
+    const result = await patch(endpoints.updateUser, user);
+    return result;
+}
+
+export async function deleteUser(id) {
+    return await del(endpoints.deleteUser, id);
 }

@@ -14,6 +14,7 @@ export function clearUserData() {
 }
 
 export function createSubmitHandler(callback) {
+    debugger
     return function (event) {
         event.preventDefault();
         const form = event.currentTarget;

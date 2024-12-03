@@ -7,7 +7,8 @@ from flask_cors import CORS
 app = Flask("app")
 CORS(app, 
      resources={
-         r"/*": {"origins": "*"}
+         r"/*": {"origins": "*",
+                 "methods": ["GET", "POST", "PATCH", "PUT", "DELETE"]}
         }
     )
 
@@ -160,27 +161,56 @@ def get_users():
         if connection:
             connection.close()
     
-@app.route("/update_user", methods=["PATCH"])
+@app.route("/update_user", methods=["OPTIONS", "PATCH"])
 def update_user():
-    connection = connect()
-    body = request.json
-    print(body)
-    try:
-        query = """UPDATE users 
-            SET first_name = ?, last_name = ?, email = ?, is_admin = ?, updated_at = CURRENT_TIMESTAMP
-            WHERE id = ?"""
-        cursor = connection.cursor()
-        cursor.execute(query, (body["first_name"], body["last_name"], body["email"], body["is_admin"], body["id"],))
-        connection.commit()
-        return jsonify({"result": "User updated successfully"}),200
-    except Exception as e:
-        return jsonify({"error": f"Something went wrong. Cause: {e}"}), 500
-    finally:
-        if cursor:
-            cursor.close()
-        if connection:
-            connection.close()
+    if request.method == "OPTIONS":
+        # Handle preflight OPTIONS request (CORS)
+        return Response(status=200, headers={
+            "Access-Control-Allow-Origin": "*",  # Allow all origins
+            "Access-Control-Allow-Methods": "PATCH, GET, POST, PUT, DELETE",  # Allow these HTTP methods
+            "Access-Control-Allow-Headers": "Content-Type, Authorization"  # Allow necessary headers
+        })
+    
+    if request.method == "PATCH":
+        connection = connect()
+        body = request.json
+        print(body)
+        try:
+            query = """UPDATE users 
+                SET first_name = ?, last_name = ?, email = ?, is_admin = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE user_id = ?"""
+            cursor = connection.cursor()
+            cursor.execute(query, (body["first_name"], body["last_name"], body["email"], body["is_admin"], body["user_id"],))
+            connection.commit()
+            return jsonify({"result": "User updated successfully"}),200
+        except Exception as e:
+            return jsonify({"error": f"Something went wrong. Cause: {e}"}), 500
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
             
+@app.route("/delete_user", methods=["DELETE"])
+def delete_user():
+        connection = connect()
+        print(request.data)
+        body = request.get_json()
+        user_id = body.get("user_id")
+        try:
+            query = """DELETE FROM users
+                WHERE user_id = ?"""
+            cursor = connection.cursor()
+            cursor.execute(query, (user_id,))
+            connection.commit()
+            return jsonify({"result": "User deleted successfully"}),200
+        except Exception as e:
+            return jsonify({"error": f"Something went wrong. Cause: {e}"}), 500
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
     
 # def create_admin_user():
 #     connection = connect()

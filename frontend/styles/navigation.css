@@ -1,0 +1,37 @@
+nav {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+nav div {
+    display: flex;
+    align-items: center;
+}
+
+nav .user, 
+nav .guest {
+    display: flex;
+    gap: 15px;
+}
+
+nav a, .user-admin-panel {
+    text-decoration: none;
+    color: #8e869a;
+    font-size: 16px;
+    padding: 8px 12px;
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.user-admin-panel {
+    display: block;
+}
+
+nav a:hover {
+    background-color: #cdb2f5;
+    color: white;
+}

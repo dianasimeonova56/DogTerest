@@ -1,18 +1,17 @@
 import page from '../../node_modules/page/page.mjs';
 import { html, render } from '../../node_modules/lit-html/lit-html.js'
-import { createSubmitHandler, setUserData } from '../util.js';
+import { createSubmitHandler } from '../util.js';
 import { main } from '../app.js';
-import { USERS } from './login.js';
+import { register } from '../auth.js';
 
 const signupTemplate = (signup) => html`
     <section>
-        <div class="login-container">
+        <div class="form-container">
             <h1>Sign up</h1>
             <form @submit=${signup}>
-                <input type="text" name="fullname" placeholder="First Name" required id="firstname">
-                <input type="text" name="fullname" placeholder="Last Name" required id="lastname">
+                <input type="text" name="firstName" placeholder="First Name" required id="firstName">
+                <input type="text" name="lastName" placeholder="Last Name" required id="lastName">
                 <input type="text" name="email" placeholder="Email" required id="email">
-                <input type="date" name="dateofbirth" placeholder="Date of Birth" required id="dob">
                 <input type="password" name="password" placeholder="Password" required id="password">
                 <input type="password" name="rePass" placeholder="Repeat Password" required id="confirm_password">
                 <div><input type="checkbox" name="pop" required id="privacy">I agree with the privacy policy</div>
@@ -23,43 +22,29 @@ const signupTemplate = (signup) => html`
         </div>
     </section>
 `
-export function signupPage(e) {
+export function signupPage() {
     render(signupTemplate(createSubmitHandler(signup)), main)
 
-    function signup({firstName, lastName, email, dob, password, rePass, pop, tac}) {
-        
-        // let user = window.localStorage.getItem('user');
-        // if (!user) {
-        //     user = {
-        //         "firstName": undefined,
-        //         "lastName": undefined,
-        //         "email": undefined,
-        //         "password": undefined,
-        //         "dob": undefined
-        //     }
-        // } else {
-        //     user = JSON.parse(user);
-        // }
-        
-        // const password = document.getElementById('password');
-        // const confirmPassword = document.getElementById('confirm_password');
-        if (password.value == "" || (password.value != rePass.value)) {
+    async function signup({firstName, lastName, email, password, rePass, pop, tac}) {
+        console.log(firstName, lastName, email, password, rePass, pop, tac);
+        if (password == "" || (password != rePass)) {
             return alert("passwords are different");
         }
-        // if (!tac.checked) {
-        //     debugger
-        //     return alert("terms policies must be agreed upon");
-        // }
-        // if (!pop.checked) {
-        //     return alert("privacy policies must be agreed upon");
-        // }
-        const user = { "email": email, "password": password, "role": "user", "dateOfBirth": dob }
+        if (!tac) {
+            return alert("terms policies must be agreed upon");
+        }
+        if (!pop) {
+            return alert("privacy policies must be agreed upon");
+        }
+        const user = { "email": email, "password": password, "firstname": firstName, "lastname": lastName}
         
-        // console.log("user" + user.attributes.firstName);
-        
-        // setUserData(user);
-        USERS.push(user);
-        page.redirect('/login')
+        try {
+            await register(user);
+            page.redirect("/login");
+        } catch (error) {
+            alert(error.message);
+            console.log("Login error:", error);
+        }
     }
 }
 

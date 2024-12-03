@@ -3,9 +3,10 @@ import json
 from sqlite3 import connect
 
 
+
 class User:
     def __init__(self):
-        self.id = None
+        self.user_id = None
         self.first_name = None
         self.last_name = None
         self.email = None
@@ -13,6 +14,7 @@ class User:
         self.created_at = None
         self.updated_at = None
         self.is_active = None
+        self.is_admin = None
     # === VALIDATION === #
     def is_password_valid(self):
         if self.password is None or len(self.password) < 8:

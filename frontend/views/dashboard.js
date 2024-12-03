@@ -1,21 +1,16 @@
 import { html, render } from '../../node_modules/lit-html/lit-html.js';
 import { main } from '../app.js';
+import { imageTemplate } from '../constants/imageTemplate.js';
+
+export const IMAGES = [
+    { "url": "/frontend/imgs/marki.png", "description": "I am Marki :3", "owner": "a@b.c" },
+    { "url": "/frontend/imgs/marki2.png", "description": "I am Markieee hihi", "owner": "d@e.c" },
+];
 
 // Dashboard template
 export const dashboardTemplate = (onClick) => html`
 <section id="dashboard">
-    <div class="item">
-        <div class="content">
-            <img src="/frontend/imgs/marki.png" alt="Post Image" />
-            <div class="overlay">I am Markie :3</div>
-        </div>
-    </div>
-    <div class="item">
-        <div class="content">
-            <img src="/frontend/imgs/marki2.png" alt="Post Image" />
-            <div class="overlay">I am Markie :3</div>
-        </div>
-    </div>
+    ${IMAGES.map(imgs => imageTemplate(imgs))}
     <div class="item">
         <div id="add" class="content circle-plus" @click=${onClick}>
         </div>
@@ -24,7 +19,7 @@ export const dashboardTemplate = (onClick) => html`
     <div id="overlay-form" class="overlay-form" style="display: none;">
         <div class="modal">
             <span id="closeModal" class="close">&times;</span>
-            <h2 class="login-cointainer">Add a Picture</h2>
+            <h2 class="form-cointainer">Add a Picture</h2>
             <form id="uploadForm" class="login-container">
                 <input type="file" accept="image/*" required>
                 <label>Add a Description</label>

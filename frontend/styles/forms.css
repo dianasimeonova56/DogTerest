@@ -1,4 +1,4 @@
-.login-container {
+.form-container {
     background: rgba(255, 255, 255, 0.9);
     border-radius: 10px;
     padding: 30px; 
@@ -10,19 +10,19 @@
     box-sizing: border-box;
 }
 
-.login-container h1 {
+.form-container h1 {
     margin: 0 0 20px; 
     font-size: 24px; 
     color: #cdb2f5; 
 }
 
-.login-container h2 {
+.form-container h2 {
     margin: 0 0 20px; 
     font-size: 18px; 
     color: #cdb2f5; 
 }
 
-.login-container label {
+.form-container label {
     display: block; 
     margin-top: 10px;
     margin-bottom: 10px; 
@@ -31,10 +31,10 @@
     color: #cdb2f5; 
 }
 
-.login-container input[type="text"],
-.login-container input[type="password"],
-.login-container input[type="email"],
-.login-container input[type="date"]{
+.form-container input[type="text"],
+.form-container input[type="password"],
+.form-container input[type="email"],
+.form-container input[type="date"]{
     width: 100%; 
     padding: 10px 6px; 
     margin-bottom: 15px; 
@@ -56,7 +56,7 @@ select::-webkit-scrollbar {
     display: none;
 }
 
-.login-container button {
+.form-container button {
     background: #cdb2f5; 
     color: white; 
     border: none; 
@@ -80,20 +80,20 @@ select::-webkit-scrollbar {
     width: 100%;
 }
 
-.login-container input[type="submit"]:hover {
+.form-container input[type="submit"]:hover {
     background: #a36cbf;
 }
 
-.login-container p {
+.form-container p {
     margin-top: 15px; 
     font-size: 14px;
 }
 
-.login-container a {
+.form-container a {
     color: #cdb2f5; 
     text-decoration: none;
 }
 
-.login-container a:hover {
+.form-container a:hover {
     text-decoration: underline;
 }

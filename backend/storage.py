@@ -8,15 +8,16 @@ connection = connect()
 # Databse interaction example
 # 1. create a query
 query = """CREATE TABLE IF NOT EXISTS users (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    first_NAME VARCHAR,
+    user_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    first_name VARCHAR,
     last_name VARCHAR,
-    email VARCHAR,
-    password VARCHAR,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP,
-    is_active INTEGER
-    )"""
+    email VARCHAR UNIQUE NOT NULL,
+    password VARCHAR NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_active BOOLEAN DEFAULT 1,
+    is_admin BOOLEAN DEFAULT 0
+);"""
 # 2. add values to the query (depending on the situation)
 # 3. run the query
 # 3.1. create a cursor
@@ -32,12 +33,14 @@ cursor.close()
 connection.close()
 
 # === CREATE TABLE FILES TABLE === #
-query = """CREATE TABLE IF NOT EXISTS user_files (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    uploaded_image_url VARCHAR,
-    user_id INTEGER,
-    created_at TIMESTAMP,
-    updated_at TIMESTAMP
+query = """CREATE TABLE IF NOT EXISTS images (
+    image_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    uploaded_image_url VARCHAR NOT NULL,
+    user_id INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    likes INTEGER DEFAULT 0,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
     );"""
     
 connection = connect()
@@ -46,3 +49,65 @@ cursor.execute(query)
 connection.commit()
 cursor.close()
 connection.close()
+
+query = """CREATE TABLE IF NOT EXISTS likes (
+    like_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    image_id INTEGER NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (image_id) REFERENCES user_files (id) ON DELETE CASCADE
+    );"""
+    
+connection = connect()
+cursor = connection.cursor()
+cursor.execute(query)
+connection.commit()
+cursor.close()
+connection.close()
+
+query = """CREATE TABLE IF NOT EXISTS favourite_pictures (
+    fav_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER NOT NULL,
+    image_id INTEGER NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (image_id) REFERENCES user_files (id) ON DELETE CASCADE
+    );"""
+    
+#     CREATE TABLE IF NOT EXISTS favourite_pictures (
+#     fav_id INTEGER PRIMARY KEY AUTOINCREMENT,
+#     user_id INTEGER NOT NULL,
+#     image_id INTEGER NOT NULL,
+#     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+#     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+#     FOREIGN KEY (image_id) REFERENCES user_files (id) ON DELETE CASCADE
+# );
+connection = connect()
+cursor = connection.cursor()
+cursor.execute(query)
+connection.commit()
+cursor.close()
+connection.close()
+# Table users 
+#id INTEGER PRIMARY KEY AUTOINCREMENT,
+    # first_name VARCHAR,
+    # last_name VARCHAR,
+    # email VARCHAR,
+    # password VARCHAR
+    
+# Table user_files
+    # user_file_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    # uploaded_image_url VARCHAR,
+    # user_id INTEGER FK,
+    # created_at TIMESTAMP
+
+# Table favourite_pictures
+    # fav_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    # user_id INTEGER,
+    # image_id INTEGER
+    
+# Table likes
+    # like_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    # user_id INTEGER,
+    # created_at TIMESTAMP

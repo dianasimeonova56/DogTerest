@@ -7,6 +7,7 @@ import { loginPage } from './views/login.js';
 import { signupPage } from './views/signup.js';
 import { logout } from './auth.js';
 import { adminPage } from './views/admin.js';
+import { homePage } from './views/home.js';
 
 export const main = document.querySelector('main')
 const root = document.querySelector('header')
@@ -17,6 +18,7 @@ page('/login', loginPage);
 page('/signup', signupPage);
 page('/logout', logoutAction);
 page('/admin', adminPage);
+page('/home', homePage);
 
 page.start();
 
@@ -30,7 +32,7 @@ function renderView() {
     render(layoutTemplate(userData), root)
 }
 
-function logoutAction(ctx) {
+function logoutAction() {
     logout();
-    page.redirect('/');
+    page.redirect('/home');
 }

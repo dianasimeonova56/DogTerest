@@ -3,7 +3,7 @@ export const layoutTemplate = (userData) => html`
 <nav>
 <div class="logo">
     <a href="/dashboard">
-        <img src="./imgs/yorkshire-terrier-dog-head-hand-drawn-c0475e.webp" alt="Logo" />
+        <img src="/imgs/yorkshire-terrier-dog-head-hand-drawn-c0475e.webp" alt="Logo" />
     </a>
 </div>
 <a href="/home">Home</a>

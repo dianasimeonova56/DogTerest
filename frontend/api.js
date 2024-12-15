@@ -3,26 +3,27 @@ import { getUserData, clearUserData } from "./util.js";
 const host = 'http://localhost:5001'
 
 async function request(method, url, data) {
-    debugger
     
     const options ={
         method,
         headers: {}
     };
 
-    const userData = getUserData();
-    // if (userData) {
-    //     const token = userData.accessToken;
-    //     options.headers['X-Authorization'] = token
-    // }
+    //const userData = getUserData();
 
-    if(data!==undefined) {
-        options.headers['Content-Type'] = 'application/json';
+    if (data instanceof FormData) {
+        console.log('FormData detected');
         console.log(data);
-        console.log(JSON.stringify(data));
-        options.body = JSON.stringify(data);
+        options.body = data;
+        
+    } 
+    else if (data !== undefined) {
+        console.log('JSON data detected');
+        options.headers['Content-Type'] = 'application/json';
+        if (method !== 'GET' && method !== 'HEAD') {
+            options.body = JSON.stringify(data);
+        }
     }
-
     try {
         const response = await fetch(host+url, options);
 

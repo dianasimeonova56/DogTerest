@@ -8,6 +8,7 @@ import { signupPage } from './views/signup.js';
 import { logout } from './auth.js';
 import { adminPage } from './views/admin.js';
 import { homePage } from './views/home.js';
+import { detailsPage } from './views/details.js';
 
 export const main = document.querySelector('main')
 const root = document.querySelector('header')
@@ -19,6 +20,7 @@ page('/signup', signupPage);
 page('/logout', logoutAction);
 page('/admin', adminPage);
 page('/home', homePage);
+page('/details/:id', detailsPage)
 
 page.start();
 

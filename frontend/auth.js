@@ -1,19 +1,20 @@
 // auth.js
 import { setUserData, clearUserData } from './util.js';
-import { post, get, patch, del } from './api.js';
+import { post } from './api.js';
 
 const endpoints = {
     login: '/signin',
     register: '/signup',
     logout: '/logout',
     catalog: '/dashboard',
-    getUsers: '/get_users',
-    updateUser: '/update_user',
-    deleteUser: '/delete_user',
+    // details: (id) => `/catalog/${id}`
 };
 
 export async function login({ email, password }) {
+    debugger
     const userData = await post(endpoints.login, { email, password });
+    console.log((userData.data));
+    
     setUserData(userData.data);
 }
 
@@ -26,17 +27,3 @@ export async function logout() {
     clearUserData();
 }
 
-export async function getUsers() {
-    const userData = await get(endpoints.getUsers);
-    return userData.users;
-}
-
-export async function updateUser(user) {
-    debugger
-    const result = await patch(endpoints.updateUser, user);
-    return result;
-}
-
-export async function deleteUser(id) {
-    return await del(endpoints.deleteUser, id);
-}

@@ -1,6 +1,7 @@
 from datetime import datetime
 import json
-from flask import Flask, jsonify, request, Response, send_from_directory
+import os
+from flask import Flask, jsonify, request, Response
 from storage import connect
 from flask_cors import CORS
 
@@ -11,6 +12,10 @@ CORS(app,
                  "methods": ["GET", "POST", "PATCH", "PUT", "DELETE"]}
         }
     )
+
+FILE_STORAGE_PATH = "imgs"
+if not os.path.exists(FILE_STORAGE_PATH):
+    os.makedirs(FILE_STORAGE_PATH)
 
 # @app.route("/", methods=["GET"])
 # def home():
@@ -212,6 +217,173 @@ def delete_user():
             if connection:
                 connection.close()
     
+@app.route("/upload_picture", methods=["POST"])
+def upload_picture():
+    if 'file' not in request.files:
+        return Response(json.dumps({"error": "No file provided"}), 
+                            status=400, 
+                            headers={"Content-Type": "application/json"})
+
+    file = request.files['file']
+    if file.filename == '':
+        return Response(json.dumps({"error": "No file selected"}), 
+                            status=400, 
+                            headers={"Content-Type": "application/json"})
+    
+    # Save file
+    file_path = os.path.join(FILE_STORAGE_PATH, file.filename)
+    file.save(file_path)
+    
+    # Now retrieve the other form fields
+    description = request.form.get('description')  # Use request.form to get form data
+    user_id = request.form.get('user_id')  # User ID also comes from form
+
+    if not description or not user_id:
+        return Response(json.dumps({"error": "Missing form fields"}), 
+                            status=400, 
+                            headers={"Content-Type": "application/json"})
+    
+    try:
+        # Insert the image data into the database
+        connection = connect()
+        query = """INSERT INTO images (uploaded_image_url, user_id, description) VALUES (?, ?, ?)"""
+        cursor = connection.cursor()
+        cursor.execute(query, (file_path, user_id, description))
+        connection.commit()
+        
+        return jsonify({"result": "Image uploaded successfully"}), 200
+    except Exception as e:
+        print(e)
+        return jsonify({"error": f"Something went wrong. Cause: {e}"}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+@app.route("/get_pictures", methods=["GET"])
+def get_pictures():
+    connection = connect()
+    try:
+        query = """SELECT * FROM images"""
+        cursor = connection.cursor()
+        cursor.execute(query)
+        result = cursor.fetchall()
+
+        images = []
+        for row in result:
+            image = {
+                "image_id": row[0],
+                "uploaded_image_url": row[1],
+                "user_id": row[2],
+                "created_at": row[3],
+                "updated_at": row[4],
+                "likes": row[5],
+                "description": row[6]
+            }
+            images.append(image)
+
+        return jsonify({"images": images}), 200
+    except Exception as e:
+        return jsonify({"error": f"Something went wrong. Cause: {e}"}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+            
+@app.route("/get_picture_by_id/<int:image_id>", methods=["GET"])
+def get_picture_by_id(image_id):
+    connection = connect()
+    cursor = None
+    try:
+        query = """SELECT * FROM images WHERE image_id = ?"""
+        cursor = connection.cursor()
+        cursor.execute(query, (image_id,))
+        result = cursor.fetchone()
+        
+        if not result:
+            return jsonify({"error": "Image not found"}), 404
+
+        image = {
+                "image_id": result[0],
+                "uploaded_image_url": result[1],
+                "user_id": result[2],
+                "created_at": result[3],
+                "updated_at": result[4],
+                "likes": result[5],
+                "description": result[6]
+            }
+
+        return jsonify({"image": image}), 200
+    except Exception as e:
+        return jsonify({"error": f"Something went wrong. Cause: {e}"}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+@app.route("/edit_picture/<int:image_id>", methods=["OPTIONS", "PATCH"])
+def edit_picture(image_id):
+    if request.method == "OPTIONS":
+        # Handle preflight OPTIONS request (CORS)
+        return Response(status=200, headers={
+            "Access-Control-Allow-Origin": "*",  # Allow all origins
+            "Access-Control-Allow-Methods": "PATCH, GET, POST, PUT, DELETE",  # Allow these HTTP methods
+            "Access-Control-Allow-Headers": "Content-Type, Authorization"  # Allow necessary headers
+        })
+    
+    if request.method == "PATCH":
+        connection = connect()
+        body = request.json
+        print(body)
+        try:
+            query = """UPDATE images 
+                SET description = ?
+                WHERE image_id = ?"""
+            cursor = connection.cursor()
+            cursor.execute(query, (body['toEdit'], image_id,))
+            connection.commit()
+            return jsonify({"result": "Image updated successfully"}),200
+        except Exception as e:
+            return jsonify({"error": f"Something went wrong. Cause: {e}"}), 500
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
+                
+            
+@app.route("/delete_picture/<int:image_id>", methods=["OPTIONS","DELETE"])
+def delete_picture(image_id):
+    if request.method == "OPTIONS":
+        return Response(status=200, headers={
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "PATCH, GET, POST, PUT, DELETE",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization"
+        })
+        
+    if request.method == "DELETE":
+        connection = connect()
+        print(request.data)
+        try:
+            query = """DELETE FROM images WHERE image_id = ?"""
+            cursor = connection.cursor()
+            cursor.execute(query, (image_id,))
+            connection.commit()
+            return jsonify({"result": "Image deleted successfully"}), 200, {
+                "Access-Control-Allow-Origin": "*"
+            }
+        except Exception as e:
+            return jsonify({"error": f"Something went wrong. Cause: {e}"}), 500, {
+            "Access-Control-Allow-Origin": "*"
+            }
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
 # def create_admin_user():
 #     connection = connect()
 #     cursor = connection.cursor()
@@ -270,7 +442,6 @@ def delete_user():
 #     finally:
 #         cursor.close()
 #         connection.close()
-
 if __name__ == "__main__":
     #create_admin_user()
     app.run(debug=True, port=5001)

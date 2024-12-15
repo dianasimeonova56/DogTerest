@@ -1,16 +1,12 @@
 import { html, render } from '../../node_modules/lit-html/lit-html.js';
 import { main } from '../app.js';
+import { getPictures, uploadPicture } from '../functions.js';
 import { imageTemplate } from '../constants/imageTemplate.js';
+import { getUserData } from '../util.js';
 
-export const IMAGES = [
-    { "url": "/frontend/imgs/marki.png", "description": "I am Marki :3", "owner": "a@b.c" },
-    { "url": "/frontend/imgs/marki2.png", "description": "I am Markieee hihi", "owner": "d@e.c" },
-];
-
-// Dashboard template
-export const dashboardTemplate = (onClick) => html`
+export const dashboardTemplate = (pictures, onClick, onUpload) => html`
 <section id="dashboard">
-    ${IMAGES.map(imgs => imageTemplate(imgs))}
+    ${pictures.map(imgs => imageTemplate(imgs))}
     <div class="item">
         <div id="add" class="content circle-plus" @click=${onClick}>
         </div>
@@ -18,55 +14,79 @@ export const dashboardTemplate = (onClick) => html`
 
     <div id="overlay-form" class="overlay-form" style="display: none;">
         <div class="modal">
-            <span id="closeModal" class="close">&times;</span>
+        <span id="closeModal" class="close" role="button" tabindex="0">&times;</span>
             <h2 class="form-cointainer">Add a Picture</h2>
-            <form id="uploadForm" class="login-container">
-                <input type="file" accept="image/*" required>
+            <form id="uploadForm" class="form-container" onsubmit="return false;" action="javascript:void(0);">
+                <input type="file" accept="image/*" required id="fileInput">
                 <label>Add a Description</label>
-                <input type="text" required name="description">
-                <button type="submit">Upload</button>
+                <input type="text" required name="description" id="description">
+                <button type="button" @click=${onUpload}>Upload</button>
             </form>
         </div>
     </div>
 </section>
 `;
 
-export function dashboardPage() {
-    render(dashboardTemplate(onClick), main);
-
-    function onClick() {
+export async function dashboardPage() {
+    let pictures = [];
+    try {
+        pictures = await getPictures();
+    } catch (e) {
+        console.error(e);
+        alert(e);
+    }
+    
+    render(dashboardTemplate(pictures, onClick, onUpload), main);
+    
+    function onClick(e) {
         document.getElementById('overlay-form').style.display = 'flex';
-        
-        document.getElementById('closeModal').onclick = function() {
+        console.log('Form overlay is displayed.');
+
+        document.getElementById('closeModal').onclick = function (e) {
+            e.stopPropagation(); 
             document.getElementById('overlay-form').style.display = 'none';
         };
+    }
 
-        document.getElementById('uploadForm').onsubmit = function(event) {
-            event.preventDefault();
-            debugger;
-            const form = event.target;
-            const fileInput = form.querySelector('input[type="file"]');
-            const file = fileInput.files[0];
-            const description = form.querySelector('input[name="description"]');
+    async function onUpload(e) {
+        e.preventDefault();
+        const user = getUserData();
 
-            if (file) {
-                alert(`Picture uploaded: ${file.name}`);
-                
-                const newImageItem = document.createElement('div');
-                newImageItem.className = 'item';
-                newImageItem.innerHTML = `
-                    <div class="content">
-                        <img src="${URL.createObjectURL(file)}" alt="${file.name}" />
-                        <div class="overlay">${description.value}</div>
-                    </div>
-                `;
-                
-                document.querySelector('#dashboard').insertBefore(newImageItem, document.getElementById('add').parentNode);
-                
-                document.getElementById('overlay-form').style.display = 'none';
-                fileInput.value = null;
-                description.value = null;
-            }
-        };
+        const fileInput = document.getElementById("fileInput");
+        const file = fileInput.files[0];
+        const description = document.getElementById("description").value;
+
+        if (!file) {
+            alert('Please select a file before uploading.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('description', description);
+        formData.append('user_id', user.id);
+
+        try {
+            await uploadPicture(formData);
+            
+            const newImageItem = document.createElement('div');
+            newImageItem.className = 'item';
+            newImageItem.innerHTML = `
+                <div class="content">
+                    <img src="${URL.createObjectURL(file)}" alt="${file.name}" />
+                    <div class="overlay">${description}</div>
+                </div>
+            `;
+
+            document.querySelector('#dashboard').insertBefore(
+                newImageItem,
+                document.getElementById('add').parentNode
+            );
+
+            document.getElementById('overlay-form').style.display = 'none';
+        } catch (error) {
+            console.error('Upload failed:', error);
+            alert(error);
+        }
     }
 }

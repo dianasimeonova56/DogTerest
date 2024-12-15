@@ -30,6 +30,7 @@ def version():
     }
     return Response(json.dumps(response), content_type="application/json")
 
+### USER ###
 @app.route("/signin", methods=["GET", "POST"])
 def signin():
     print("Request Data:", request.data)
@@ -217,6 +218,7 @@ def delete_user():
             if connection:
                 connection.close()
     
+### PICTURES ###
 @app.route("/upload_picture", methods=["POST"])
 def upload_picture():
     if 'file' not in request.files:
@@ -230,13 +232,11 @@ def upload_picture():
                             status=400, 
                             headers={"Content-Type": "application/json"})
     
-    # Save file
     file_path = os.path.join(FILE_STORAGE_PATH, file.filename)
     file.save(file_path)
     
-    # Now retrieve the other form fields
-    description = request.form.get('description')  # Use request.form to get form data
-    user_id = request.form.get('user_id')  # User ID also comes from form
+    description = request.form.get('description')
+    user_id = request.form.get('user_id')
 
     if not description or not user_id:
         return Response(json.dumps({"error": "Missing form fields"}), 
@@ -244,7 +244,6 @@ def upload_picture():
                             headers={"Content-Type": "application/json"})
     
     try:
-        # Insert the image data into the database
         connection = connect()
         query = """INSERT INTO images (uploaded_image_url, user_id, description) VALUES (?, ?, ?)"""
         cursor = connection.cursor()
@@ -327,11 +326,10 @@ def get_picture_by_id(image_id):
 @app.route("/edit_picture/<int:image_id>", methods=["OPTIONS", "PATCH"])
 def edit_picture(image_id):
     if request.method == "OPTIONS":
-        # Handle preflight OPTIONS request (CORS)
         return Response(status=200, headers={
-            "Access-Control-Allow-Origin": "*",  # Allow all origins
-            "Access-Control-Allow-Methods": "PATCH, GET, POST, PUT, DELETE",  # Allow these HTTP methods
-            "Access-Control-Allow-Headers": "Content-Type, Authorization"  # Allow necessary headers
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "PATCH, GET, POST, PUT, DELETE",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization"
         })
     
     if request.method == "PATCH":
@@ -353,8 +351,7 @@ def edit_picture(image_id):
                 cursor.close()
             if connection:
                 connection.close()
-                
-            
+                           
 @app.route("/delete_picture/<int:image_id>", methods=["OPTIONS","DELETE"])
 def delete_picture(image_id):
     if request.method == "OPTIONS":
@@ -384,6 +381,160 @@ def delete_picture(image_id):
                 cursor.close()
             if connection:
                 connection.close()
+
+@app.route("/like_picture/<int:image_id>", methods=["POST"])
+def like_picture(image_id):
+    connection = connect()
+    cursor = None
+    try:
+        body = request.json
+        print(body)
+        # user_id = body['user_id']
+        if not body:
+            return jsonify({"error": "Missing user_id"}), 400
+
+        cursor = connection.cursor()
+
+        query_check = """SELECT COUNT(*) FROM likes WHERE user_id = ? AND image_id = ?"""
+        cursor.execute(query_check, (body, image_id))
+
+        result = cursor.fetchone()
+        print(result)
+
+        if result[0] == 1:
+            has_liked = 1
+        else:
+            has_liked = 0
+            
+        if has_liked != 0:
+            return jsonify({"error": "User already liked this picture"}), 400
+
+        query_insert = """INSERT INTO likes (user_id, image_id) VALUES (?, ?)"""
+        cursor.execute(query_insert, (body, image_id))
+
+        query_update = """UPDATE images SET likes = likes + 1 WHERE image_id = ?"""
+        cursor.execute(query_update, (image_id,))
+
+        connection.commit()
+
+        return jsonify({"result": "Liking was successful"}), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Something went wrong. Cause: {e}"}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+            
+@app.route("/unlike_picture/<int:image_id>", methods=["DELETE", "OPTIONS"])
+def unlike_picture(image_id):
+    if request.method == "OPTIONS":
+        return Response(status=200, headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "PATCH, GET, POST, PUT, DELETE",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization"
+        })
+        
+    if request.method == "DELETE":
+        connection = connect()
+        cursor = None
+        try:
+            cursor = connection.cursor()
+            body = request.json
+            print(body)
+
+            query_check = """SELECT COUNT(*) FROM likes WHERE image_id = ? AND user_id = ?"""
+            cursor.execute(query_check, (image_id, body))
+            result = cursor.fetchone()
+
+            if result[0] == 0:
+                return jsonify({"error": "Like not found"}), 400
+
+            query_delete = """DELETE FROM likes WHERE image_id = ? AND user_id = ?"""
+            cursor.execute(query_delete, (image_id, body))
+
+            query_update = """UPDATE images SET likes = likes - 1 WHERE image_id = ?"""
+            cursor.execute(query_update, (image_id,))
+
+            connection.commit()
+
+            return jsonify({"result": "Like was deleted"}), 200, {
+                "Access-Control-Allow-Origin": "*"
+            }
+
+        except Exception as e:
+            return jsonify({"error": f"Something went wrong. Cause: {e}"}), 500
+
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
+@app.route("/get_likes/<int:image_id>", methods=["GET"])
+def get_likes(image_id):
+    connection = connect()
+    cursor = None
+    try:
+        query =  """ 
+            SELECT * from likes where image_id = ?
+        """
+        cursor = connection.cursor()
+        cursor.execute(query, (image_id,))
+        result = cursor.fetchall()
+        print(result)
+        
+        likes = []
+        for row in result:
+            like = {
+                "like_id": row[0],
+                "user_id": row[1],
+                "created_at": row[2],
+                "image_id": row[3]
+            }
+            likes.append(like)
+        print(likes)
+        query_count_likes = """SELECT COUNT(*) FROM likes WHERE image_id = ?"""
+        cursor.execute(query_count_likes, (image_id,))
+        likes_count = cursor.fetchone()[0]
+       
+        
+        if not result:
+            return jsonify({"likes": [], "likes_count": 0}), 200
+
+        return jsonify({"likes": likes, "likes_count": likes_count}), 200
+    except Exception as e:
+        return jsonify({"error": f"Something went wrong. Cause: {e}"}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+    
+@app.route("/get_user_likes/<int:image_id>/<int:user_id>", methods=["GET"])
+def get_user_likes(image_id, user_id):
+    connection = connect()
+    cursor = None
+    try:
+        query =  """ 
+            SELECT COUNT(*) FROM likes WHERE image_id = ? AND user_id = ?
+        """
+        cursor = connection.cursor()
+        cursor.execute(query, (image_id, user_id,))
+        result = cursor.fetchone()
+        print(result)
+        if result[0] == 0: 
+            return jsonify({"result": 0}), 200
+
+        return jsonify({"hasLiked": 1}), 200
+    except Exception as e:
+        return jsonify({"error": f"Something went wrong. Cause: {e}"}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
 # def create_admin_user():
 #     connection = connect()
 #     cursor = connection.cursor()

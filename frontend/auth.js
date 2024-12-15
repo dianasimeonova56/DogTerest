@@ -11,10 +11,7 @@ const endpoints = {
 };
 
 export async function login({ email, password }) {
-    debugger
     const userData = await post(endpoints.login, { email, password });
-    console.log((userData.data));
-    
     setUserData(userData.data);
 }
 

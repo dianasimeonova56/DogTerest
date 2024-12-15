@@ -8,7 +8,11 @@ const endpoints = {
     getUsers: '/get_users',
     getPicturebyId: '/get_picture_by_id/',
     editPicture: '/edit_picture/',
-    deletePicture: '/delete_picture/'
+    deletePicture: '/delete_picture/',
+    likePicture: '/like_picture/',
+    getLikes: '/get_likes/',
+    getUserLikes: '/get_user_likes/',
+    unlikePicture: '/unlike_picture/',
 };
 
 export async function getUsers() {
@@ -45,4 +49,24 @@ export async function editPicture(id, data) {
 
 export async function deletePicture(id) {
     return await del(endpoints.deletePicture + id);
+}
+
+export async function getLikes(id) {
+    return get(endpoints.getLikes + id);
+}
+
+export async function getUserLikes(id, data) {
+    console.log(id, data);
+    
+    return get(endpoints.getUserLikes + `${id}/${data}`);
+}
+
+export async function likePicture(id, data) {
+    const result = await post(endpoints.likePicture + id, data);
+    return result;
+}
+
+export async function unlikePicture(id, data) {
+    const result = await del(endpoints.unlikePicture + id, data);
+    return result;
 }

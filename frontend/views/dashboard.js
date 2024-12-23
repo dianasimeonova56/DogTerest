@@ -6,7 +6,10 @@ import { getUserData } from '../util.js';
 
 export const dashboardTemplate = (pictures, onClick, onUpload) => html`
 <section id="dashboard">
-    ${pictures.map(imgs => imageTemplate(imgs))}
+    ${pictures.length > 0 
+        ? pictures.map(imgs => imageTemplate(imgs))
+        : html`<p>No pictures found. Click the + button to add a new one.</p>`}
+   
     <div class="item">
         <div id="add" class="content circle-plus" @click=${onClick}>
         </div>
@@ -35,6 +38,7 @@ export async function dashboardPage() {
         console.error(e);
         alert(e);
     }
+    console.log(pictures);
     
     render(dashboardTemplate(pictures, onClick, onUpload), main);
     
@@ -49,6 +53,7 @@ export async function dashboardPage() {
     }
 
     async function onUpload(e) {
+        debugger
         e.preventDefault();
         const user = getUserData();
 
@@ -64,7 +69,7 @@ export async function dashboardPage() {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('description', description);
-        formData.append('user_id', user.id);
+        formData.append('user_id', user.user_id);
 
         try {
             await uploadPicture(formData);

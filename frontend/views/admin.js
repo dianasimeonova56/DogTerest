@@ -67,7 +67,7 @@ export async function adminPage() {
         try {
             await updateUser(user);
             alert('User updated successfully')
-            page.reload
+           // page.reload
         } catch (error) {
             alert(error.message);
             console.log("Login error:", error);

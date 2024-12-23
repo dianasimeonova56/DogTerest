@@ -12,6 +12,7 @@ const endpoints = {
 
 export async function login({ email, password }) {
     const userData = await post(endpoints.login, { email, password });
+    
     setUserData(userData.data);
 }
 

@@ -6,11 +6,11 @@ import { getUserData } from '../util.js';
 export const homeTemplate = (userData) => html`
 <section id="home">
         <div class="home-page">
-                <img src="./frontend/imgs/dog.png" alt="Cute dog image">
+                <img src="/imgs/dog.png" alt="Cute dog image">
                 <p>Welcome to DogTerest!</p>
                 <div class="button-group">
                 ${userData ? html`<p><a href="/dashboard">Dashboard</a></p>
-                <p><a href="/favourites">Favourites</a></p>`
+                <p><a href="/current_user_profile">My Profile</a></p>`
                 :
                 html`<p><a href="/login">Login</a></p>
                 <p><a href="/signup">Register</a></p>`}

@@ -5,6 +5,7 @@ export function getUserData() {
 }
 
 export function setUserData(data) {
+    console.log(data);
     return localStorage.setItem(itemName, JSON.stringify(data))
 }
 

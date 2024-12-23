@@ -6,27 +6,23 @@ export const layoutTemplate = (userData) => html`
         <img src="/imgs/yorkshire-terrier-dog-head-hand-drawn-c0475e.webp" alt="Logo" />
     </a>
 </div>
+<div>
 <a href="/home">Home</a>
-    
-
 ${userData
         ? html`
-    <div>
     <a href="/dashboard">Dashboard</a>
-    
+    <a href="/current_user_profile">Profile</a>
 </div>
 <div class="user">
-    <!-- <a href="/create">Add Picture</a> -->
     <a href="/logout">Logout</a>
-    
     ${userData.is_admin === 1 ?
         html`<div class="admin"> <a href="/admin">Admin Panel</a>
         </div>` : null}
-
-    </div>`
-        : html`<div class="guest">
+`
+        : html`
     <a href="/login">Login</a>
     <a href="/signup">Register</a>
-</div>`
+`
     }
+    </div>
 </nav>`

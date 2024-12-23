@@ -65,7 +65,10 @@ def signin():
         user["is_admin"] = result[8]
         print(user)
         if user["password"] == body["password"]:
-            return Response(json.dumps({"data": {"id": user["user_id"], "first_name": user["first_name"], "is_admin": user["is_admin"]}}), 
+            # return Response(json.dumps({"data": {"id": user["user_id"], "first_name": user["first_name"], "is_admin": user["is_admin"]}}), 
+            #                 status=200, 
+            #                 headers={"Content-Type": "application/json"})
+            return Response(json.dumps({"data": user}), 
                             status=200, 
                             headers={"Content-Type": "application/json"})
         else:
@@ -134,6 +137,36 @@ def signup():
                         status=400,
                         headers={"Content-Type": "application/json"})
         
+@app.route("/get_user/<int:user_id>", methods=["GET"])
+def get_user(user_id):
+    connection = connect()
+    try:
+        query = """SELECT * FROM users WHERE user_id = ?"""
+        cursor = connection.cursor()
+        cursor.execute(query, (user_id,))
+        result = cursor.fetchone()
+
+        # Transforming query result to JSON
+        user = {
+                "user_id": result[0],
+                "first_name": result[1],
+                "last_name": result[2],
+                "email": result[3],
+                "created_at": result[5],
+                "updated_at": result[6],
+                "is_active": result[7],
+                "is_admin": result[8]
+            }
+
+        return jsonify({"user": user}), 200
+    except Exception as e:
+        return jsonify({"error": f"Something went wrong. Cause: {e}"}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
 @app.route("/get_users", methods=["GET"])
 def get_users():
     connection = connect()
@@ -313,6 +346,7 @@ def get_picture_by_id(image_id):
                 "likes": result[5],
                 "description": result[6]
             }
+        print(image)
 
         return jsonify({"image": image}), 200
     except Exception as e:
@@ -382,21 +416,26 @@ def delete_picture(image_id):
             if connection:
                 connection.close()
 
+### LIKES ###
 @app.route("/like_picture/<int:image_id>", methods=["POST"])
 def like_picture(image_id):
     connection = connect()
     cursor = None
+    # print("Request Headers:", request.headers)
     try:
         body = request.json
-        print(body)
-        # user_id = body['user_id']
         if not body:
             return jsonify({"error": "Missing user_id"}), 400
+        
+        if isinstance(body, dict) and 'user_id' in body:
+            user_id = body['user_id']
+        else:
+            return jsonify({"error": "Invalid request payload"}), 400
 
         cursor = connection.cursor()
 
         query_check = """SELECT COUNT(*) FROM likes WHERE user_id = ? AND image_id = ?"""
-        cursor.execute(query_check, (body, image_id))
+        cursor.execute(query_check, (user_id, image_id))
 
         result = cursor.fetchone()
         print(result)
@@ -410,7 +449,7 @@ def like_picture(image_id):
             return jsonify({"error": "User already liked this picture"}), 400
 
         query_insert = """INSERT INTO likes (user_id, image_id) VALUES (?, ?)"""
-        cursor.execute(query_insert, (body, image_id))
+        cursor.execute(query_insert, (user_id, image_id))
 
         query_update = """UPDATE images SET likes = likes + 1 WHERE image_id = ?"""
         cursor.execute(query_update, (image_id,))
@@ -443,17 +482,24 @@ def unlike_picture(image_id):
         try:
             cursor = connection.cursor()
             body = request.json
-            print(body)
+            
+            if not body:
+                return jsonify({"error": "Missing user_id"}), 400
+        
+            if isinstance(body, dict) and 'user_id' in body:
+                user_id = body['user_id']
+            else:
+                return jsonify({"error": "Invalid request payload"}), 400
 
             query_check = """SELECT COUNT(*) FROM likes WHERE image_id = ? AND user_id = ?"""
-            cursor.execute(query_check, (image_id, body))
+            cursor.execute(query_check, (image_id, user_id))
             result = cursor.fetchone()
 
             if result[0] == 0:
                 return jsonify({"error": "Like not found"}), 400
 
             query_delete = """DELETE FROM likes WHERE image_id = ? AND user_id = ?"""
-            cursor.execute(query_delete, (image_id, body))
+            cursor.execute(query_delete, (image_id, user_id))
 
             query_update = """UPDATE images SET likes = likes - 1 WHERE image_id = ?"""
             cursor.execute(query_update, (image_id,))
@@ -478,7 +524,10 @@ def get_likes(image_id):
     cursor = None
     try:
         query =  """ 
-            SELECT * from likes where image_id = ?
+            SELECT l.*, user.first_name, user.last_name
+            from likes l 
+            inner join users user on l.user_id = user.user_id
+            where image_id = ?
         """
         cursor = connection.cursor()
         cursor.execute(query, (image_id,))
@@ -491,7 +540,9 @@ def get_likes(image_id):
                 "like_id": row[0],
                 "user_id": row[1],
                 "created_at": row[2],
-                "image_id": row[3]
+                "image_id": row[3],
+                "user_first_name": row[4],
+                "user_last_name": row[5]
             }
             likes.append(like)
         print(likes)
@@ -528,6 +579,163 @@ def get_user_likes(image_id, user_id):
             return jsonify({"result": 0}), 200
 
         return jsonify({"hasLiked": 1}), 200
+    except Exception as e:
+        return jsonify({"error": f"Something went wrong. Cause: {e}"}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+       ####     
+
+### FAVOURITES ###
+@app.route("/add_to_favs/<int:image_id>", methods=["POST"])
+def add_to_favs(image_id):
+    connection = connect()
+    cursor = None
+    try:
+        body = request.json
+       #print(body)
+        if not body:
+            return jsonify({"error": "Missing user_id"}), 400
+        
+        if isinstance(body, dict) and 'user_id' in body:
+            user_id = body['user_id']
+        else:
+            return jsonify({"error": "Invalid request payload"}), 400
+
+
+        cursor = connection.cursor()
+
+        query_check = """SELECT COUNT(*) FROM favourite_pictures WHERE user_id = ? AND image_id = ?"""
+        cursor.execute(query_check, (user_id, image_id))
+
+        result = cursor.fetchone()
+        print(result)
+
+        if result[0] == 1:
+            has_added = 1
+        else:
+            has_added = 0
+            
+        if has_added != 0:
+            return jsonify({"error": "User already added this picture to their fav"}), 400
+
+        query_insert = """INSERT INTO favourite_pictures (user_id, image_id) VALUES (?, ?)"""
+        cursor.execute(query_insert, (user_id, image_id))
+        connection.commit()
+
+        return jsonify({"result": "Adding to favs was successful"}), 200
+
+    except Exception as e:
+        return jsonify({"error": f"Something went wrong. Cause: {e}"}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+            
+@app.route("/remove_from_favs/<int:image_id>", methods=["DELETE", "OPTIONS"])
+def remove_from_favs(image_id):
+    if request.method == "OPTIONS":
+        return Response(status=200, headers={
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "PATCH, GET, POST, PUT, DELETE",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization"
+        })
+    #print(request.data)
+    if request.method == "DELETE":
+        connection = connect()
+        cursor = None
+        try:
+            cursor = connection.cursor()
+            body = request.json
+            print(body)
+            if not body:
+                return jsonify({"error": "Missing user_id"}), 400
+        
+            if isinstance(body, dict) and 'user_id' in body:
+                user_id = body['user_id']
+            else:
+                return jsonify({"error": "Invalid request payload"}), 400
+
+
+            query_delete = """DELETE FROM favourite_pictures WHERE image_id = ? AND user_id = ?"""
+            cursor.execute(query_delete, (image_id, user_id))
+
+            connection.commit()
+
+            return jsonify({"result": "Fav was deleted"}), 200, {
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Allow-Methods": "PATCH, GET, POST, PUT, DELETE",
+                "Access-Control-Allow-Headers": "Content-Type, Authorization"
+            }
+
+        except Exception as e:
+            return jsonify({"error": f"Something went wrong. Cause: {e}"}), 500
+
+        finally:
+            if cursor:
+                cursor.close()
+            if connection:
+                connection.close()
+
+@app.route("/get_favs/<int:user_id>", methods=["GET"])
+def get_favs(user_id):
+    connection = connect()
+    cursor = None
+    try:
+        query =  """ 
+            SELECT fp.*, im.uploaded_image_url
+            from favourite_pictures fp
+            inner join images im on fp.image_id = im.image_id
+            where fp.user_id = ?
+        """
+        cursor = connection.cursor()
+        cursor.execute(query, (user_id,))
+        result = cursor.fetchall()
+        print(result)
+        
+        favs = []
+        for row in result:
+            fav = {
+                "fav_id": row[0],
+                "user_id": row[1],
+                "image_id": row[2],
+                "created_at": row[3],
+                "uploaded_image_url": row[4]
+            }
+            favs.append(fav)
+        print(favs)
+        if not result:
+            return jsonify({"favs": []}), 200
+
+        return jsonify({"favs": favs}), 200
+    except Exception as e:
+        return jsonify({"error": f"Something went wrong. Cause: {e}"}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+    
+@app.route("/get_user_favs/<int:image_id>/<int:user_id>", methods=["GET"])
+def get_user_favs(image_id, user_id):
+    connection = connect()
+    cursor = None
+    try:
+        query =  """ 
+            SELECT COUNT(*) FROM favourite_pictures WHERE image_id = ? AND user_id = ?
+        """
+        cursor = connection.cursor()
+        cursor.execute(query, (image_id, user_id,))
+        result = cursor.fetchone()
+        print(result)
+        if result[0] == 0: 
+            return jsonify({"result": 0}), 200
+
+        return jsonify({"hasBeenAdded": 1}), 200
     except Exception as e:
         return jsonify({"error": f"Something went wrong. Cause: {e}"}), 500
     finally:

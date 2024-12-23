@@ -5,17 +5,12 @@ nav {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 15px;
 }
 
 nav div {
     display: flex;
     align-items: center;
-}
-
-nav .user, 
-nav .guest {
-    display: flex;
-    gap: 15px;
 }
 
 nav a, .user-admin-panel {

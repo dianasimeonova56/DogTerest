@@ -1,24 +1,17 @@
-import { getUserData, clearUserData } from "./util.js";
+import { clearUserData } from "./util.js";
 
 const host = 'http://localhost:5001'
 
 async function request(method, url, data) {
-    
     const options ={
         method,
         headers: {}
     };
 
-    //const userData = getUserData();
-
     if (data instanceof FormData) {
-        console.log('FormData detected');
-        console.log(data);
         options.body = data;
-        
     } 
     else if (data !== undefined) {
-        console.log('JSON data detected');
         options.headers['Content-Type'] = 'application/json';
         if (method !== 'GET' && method !== 'HEAD') {
             options.body = JSON.stringify(data);

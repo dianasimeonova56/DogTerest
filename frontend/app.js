@@ -9,6 +9,8 @@ import { logout } from './auth.js';
 import { adminPage } from './views/admin.js';
 import { homePage } from './views/home.js';
 import { detailsPage } from './views/details.js';
+import { profilePage } from './views/profile.js';
+import { currUserProfilePage } from './views/currentUserProfile.js';
 
 export const main = document.querySelector('main')
 const root = document.querySelector('header')
@@ -21,6 +23,8 @@ page('/logout', logoutAction);
 page('/admin', adminPage);
 page('/home', homePage);
 page('/details/:id', detailsPage)
+page('/current_user_profile', currUserProfilePage)
+page('/profile/:id', profilePage);
 
 page.start();
 

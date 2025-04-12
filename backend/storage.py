@@ -5,7 +5,6 @@ def connect():
 
 connection = connect()
 
-# Databse interaction example
 # 1. create a query
 query = """CREATE TABLE IF NOT EXISTS users (
     user_id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -40,6 +39,7 @@ query = """CREATE TABLE IF NOT EXISTS images (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     likes INTEGER DEFAULT 0,
+    description VARCHAR,
     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
     );"""
     
@@ -83,6 +83,22 @@ query = """CREATE TABLE IF NOT EXISTS favourite_pictures (
 #     FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
 #     FOREIGN KEY (image_id) REFERENCES user_files (id) ON DELETE CASCADE
 # );
+connection = connect()
+cursor = connection.cursor()
+cursor.execute(query)
+connection.commit()
+cursor.close()
+connection.close()
+
+query = """CREATE TABLE IF NOT EXISTS events (
+    event_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    event_name VARCHAR,
+    user_id INTEGER NOT NULL,
+    user_first_name VARCHAR,
+    user_last_name VARCHAR,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);"""
+
 connection = connect()
 cursor = connection.cursor()
 cursor.execute(query)

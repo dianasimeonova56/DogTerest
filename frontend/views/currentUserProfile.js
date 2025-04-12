@@ -7,15 +7,13 @@ import { imageTemplate } from '../constants/imageTemplate.js';
 
 const currUserProfileTemplate = (userData, pictures, onEdit, onDelete) => html`
    <section id="profile">
-    <div class="profile-container">
-        <div class="profile-div">
+    <div class="form-container">
         <h1> ${userData.first_name} ${userData.last_name}'s Profile</h1>
         <h3> ${userData.first_name}'s Favourite Pictures</h3>
         ${pictures.length>0
             ? pictures.map(imgs => imageTemplate(imgs))
             : html`<p>${userData.first_name} doesn't have any favourite pictures :(`
-        } </div>
-        </div> 
+        } </div> 
         
         <div class="form-container">
             <h3>Edit your profile</h3>
@@ -43,7 +41,7 @@ export async function currUserProfilePage() {
     }
 
     update();
-    //edit curr user's profile
+    
     async function onEdit() {
         debugger
         const first_name = document.getElementById('first_name').value;
@@ -66,7 +64,7 @@ export async function currUserProfilePage() {
             console.log("Error: " + e.message);
         }
     }
-    //delete curr user's profile
+
      async function onDelete() {
         if(confirm('Are you sure you want to delete your profile?')) {
             try {

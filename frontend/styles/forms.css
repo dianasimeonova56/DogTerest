@@ -87,7 +87,7 @@ select::-webkit-scrollbar {
     font-size: 14px;
 }
 
-.form-container a {
+.form-container a, h1, h2, h3 {
     color: #cdb2f5; 
     text-decoration: none;
 }

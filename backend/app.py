@@ -16,11 +16,8 @@ CORS(app,
 FILE_STORAGE_PATH = "imgs"
 if not os.path.exists(FILE_STORAGE_PATH):
     os.makedirs(FILE_STORAGE_PATH)
-
-# @app.route("/", methods=["GET"])
-# def home():
-#     return send_from_directory('frontend', 'index.html')
-
+ 
+ 
 
 @app.route("/version", methods=["GET"])
 def version():
@@ -30,6 +27,54 @@ def version():
     }
     return Response(json.dumps(response), content_type="application/json")
 
+
+def log_event(event_data):
+    connection = connect()
+    #print("DB used:", os.path.abspath("D:\\DogTerest\\backend\\app.db"))
+    cursor = connection.cursor()
+    
+    query = """INSERT INTO events (event_name, user_id, user_first_name, user_last_name) 
+    VALUES (?, ?, ?, ?)"""
+    
+    cursor.execute(query, (event_data["event_name"], event_data["user_id"], event_data["user_first_name"], event_data["user_last_name"]))
+    connection.commit()
+    cursor.close()
+    connection.close()
+    
+def delete_events():
+    connection = connect()
+    cursor = connection.cursor()
+
+    cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
+    tables = cursor.fetchall()
+   # print("Tables in DB:", tables)
+
+    cursor.close()
+    connection.close()
+# @app.route("/get_recent_events", methods=["GET"]) 
+def get_recent_events():
+        connection = connect()
+        cursor = connection.cursor()
+        
+        query = """SELECT * FROM events ORDER BY created_at DESC LIMIT 10"""
+        cursor.execute(query)
+        result = cursor.fetchall()
+        #print("im here")
+        events = []
+        for row in result:
+            event = {
+                "event_id": row[0],
+                "event_name": row[1],
+                "user_id": row[2],
+                "user_first_name": row[3],
+                "user_last_name": row[4],
+                "created_at": row[5]
+            }
+           # print(event)
+            events.append(event)
+        
+        return events
+            
 ### USER ###
 @app.route("/signin", methods=["GET", "POST"])
 def signin():
@@ -81,6 +126,7 @@ def signin():
                         status=404, 
                         headers={"Content-Type": "application/json"})
 
+
 @app.route("/signup", methods=["POST"])
 def signup():
     body = request.json
@@ -103,7 +149,7 @@ def signup():
             return Response(json.dumps({"error": "Email already exists"}), 
                             status=400, 
                             headers={"Content-Type": "application/json"})
-        print({"id": user["id"], "first_name": user["first_name"]})
+        #print({"id": user["id"], "first_name": user["first_name"]})
         query = """
             INSERT INTO users (
             first_name, 
@@ -125,17 +171,39 @@ def signup():
         )
         cursor.execute(query, data)
         connection.commit()
-        cursor.close()
-        connection.close()
+        query = """SELECT * FROM users WHERE email = ?"""
+        cursor.execute(query, (user["email"],))
+        result = cursor.fetchone()
+        print(result)
+        
+        event_data = {
+            "event_name": "signed up",
+            "user_id": result[0],
+            "user_first_name": result[1],
+            "user_last_name": result[2]
+        }   
+        print(event_data)
+        
+        log_event(event_data)
+
+        response_data = {
+            "id": user["id"],
+            "first_name": user["first_name"],
+            "event": event_data
+        }
+        
+        
         response_data = {"id": user["id"], "first_name": user["first_name"]}
-        return Response(json.dumps({"data": response_data}), 
-                        status=200, 
-                        headers={"Content-Type": "application/json"})
+        return jsonify({"data": response_data, "event": event_data}), 200
+        #jsonify({"result": "Liking was successful", "event_data": event_data}), 200
         
     except Exception as e:
         return Response(json.dumps({"error": f"Something went wrong. Cause: {e}"}), 
                         status=400,
                         headers={"Content-Type": "application/json"})
+    finally:
+        cursor.close()
+        connection.close()
         
 @app.route("/get_user/<int:user_id>", methods=["GET"])
 def get_user(user_id):
@@ -221,7 +289,16 @@ def update_user():
             cursor = connection.cursor()
             cursor.execute(query, (body["first_name"], body["last_name"], body["email"], body["is_admin"], body["user_id"],))
             connection.commit()
-            return jsonify({"result": "User updated successfully"}),200
+            event_data = {
+                "event_name": "\'s profile updated",
+                "user_id": body["user_id"],
+                "user_first_name": body["first_name"],
+                "user_last_name": body["last_name"]
+            }   
+            #print(event_data)
+        
+            log_event(event_data)
+            return jsonify({"result": "User updated successfully", "event_data": event_data}),200
         except Exception as e:
             return jsonify({"error": f"Something went wrong. Cause: {e}"}), 500
         finally:
@@ -242,7 +319,23 @@ def delete_user():
             cursor = connection.cursor()
             cursor.execute(query, (user_id,))
             connection.commit()
-            return jsonify({"result": "User deleted successfully"}),200
+            
+            query = """SELECT * FROM users WHERE user_id = ?"""
+            cursor.execute(query, (user_id,))
+        
+            result = cursor.fetchone()
+            print(result)
+            
+            event_data = {
+                "event_name": "\'s profile was deleted",
+                "user_id": body["user_id"],
+                "user_first_name": result[1],
+                "user_last_name": result[2]
+            }   
+            print(event_data)
+        
+            log_event(event_data)
+            return jsonify({"result": "User deleted successfully", "event_data": event_data}),200
         except Exception as e:
             return jsonify({"error": f"Something went wrong. Cause: {e}"}), 500
         finally:
@@ -455,8 +548,22 @@ def like_picture(image_id):
         cursor.execute(query_update, (image_id,))
 
         connection.commit()
+        
+        query = """SELECT * FROM users WHERE user_id = ?"""
+        cursor.execute(query, (user_id,))
+        
+        result = cursor.fetchone()
 
-        return jsonify({"result": "Liking was successful"}), 200
+        event_data = {
+                "event_name": "liked a picture",
+                "user_id": user_id,
+                "user_first_name": result[1],
+                "user_last_name": result[2]
+            }   
+            #print(event_data)
+        
+        log_event(event_data)
+        return jsonify({"result": "Liking was successful", "event_data": event_data}), 200
 
     except Exception as e:
         return jsonify({"error": f"Something went wrong. Cause: {e}"}), 500
@@ -505,8 +612,23 @@ def unlike_picture(image_id):
             cursor.execute(query_update, (image_id,))
 
             connection.commit()
+            
+            query = """SELECT * FROM users WHERE user_id = ?"""
+            cursor.execute(query, (user_id,))
+        
+            result = cursor.fetchone()
 
-            return jsonify({"result": "Like was deleted"}), 200, {
+            event_data = {
+                "event_name": "disliked a picture",
+                "user_id": body["user_id"],
+                "user_first_name": result[1],
+                "user_last_name": result[2]
+            }   
+            #print(event_data)
+        
+            log_event(event_data)
+
+            return jsonify({"result": "Like was deleted", "event_data": event_data}), 200, {
                 "Access-Control-Allow-Origin": "*"
             }
 
@@ -624,8 +746,23 @@ def add_to_favs(image_id):
         query_insert = """INSERT INTO favourite_pictures (user_id, image_id) VALUES (?, ?)"""
         cursor.execute(query_insert, (user_id, image_id))
         connection.commit()
+        
+        query = """SELECT * FROM users WHERE user_id = ?"""
+        cursor.execute(query, (user_id,))
+        
+        result = cursor.fetchone()
 
-        return jsonify({"result": "Adding to favs was successful"}), 200
+        event_data = {
+                "event_name": "added a picture to favs",
+                "user_id": body['user_id'],
+                "user_first_name": result[1],
+                "user_last_name": result[2]
+            }   
+            #print(event_data)
+        
+        log_event(event_data)
+
+        return jsonify({"result": "Adding to favs was successful", "event_data": event_data}), 200
 
     except Exception as e:
         return jsonify({"error": f"Something went wrong. Cause: {e}"}), 500
@@ -665,8 +802,23 @@ def remove_from_favs(image_id):
             cursor.execute(query_delete, (image_id, user_id))
 
             connection.commit()
+            
+            query = """SELECT * FROM users WHERE user_id = ?"""
+            cursor.execute(query, (user_id,))
+        
+            result = cursor.fetchone()
 
-            return jsonify({"result": "Fav was deleted"}), 200, {
+            event_data = {
+                "event_name": "\'s profile updated",
+                "user_id": body['user_id'],
+                "user_first_name": result[1],
+                "user_last_name": result[2]
+            }   
+            #print(event_data)
+        
+            log_event(event_data)
+
+            return jsonify({"result": "Fav was deleted", "event_data": event_data}), 200, {
                 "Access-Control-Allow-Origin": "*",
                 "Access-Control-Allow-Methods": "PATCH, GET, POST, PUT, DELETE",
                 "Access-Control-Allow-Headers": "Content-Type, Authorization"
@@ -743,64 +895,146 @@ def get_user_favs(image_id, user_id):
             cursor.close()
         if connection:
             connection.close()
-# def create_admin_user():
-#     connection = connect()
-#     cursor = connection.cursor()
-#     try:
-#         # query = """SELECT * FROM users WHERE is_admin = 1"""
-#         # cursor.execute(query)
-#         # result = cursor.fetchone()
-#         # if result:
-#         #     return Response(
-#         #         json.dumps({"error": "Admin user already exists"}), 
-#         #         status=400, 
-#         #         headers={"Content-Type": "application/json"}
-#         #     )
+            
+            
+@app.route("/admin_dashboard_data", methods=["GET"])
+def admin_dashboard_data():
+    connection = connect()
+    cursor = None
+    try:
+        #print("Starting admin dashboard route...")
 
-#         user = {
-#             "id": None,
-#             "first_name": "Admin",
-#             "last_name": "User",
-#             "email": "admin@example.com",
-#             "password": "admin123",
-#             "is_active": 1,
-#             "is_admin": 1
-#         }
-#         query = """
-#             INSERT INTO users (
-#                 first_name, 
-#                 last_name, 
-#                 email,
-#                 password,
-#                 is_active,
-#                 is_admin
-#             )
-#             VALUES (?,?,?,?,?,?);
-#         """
-#         cursor.execute(query, (
-#             user["first_name"],
-#             user["last_name"],
-#             user["email"],
-#             user["password"],
-#             user["is_active"],
-#             user["is_admin"]
-#         ))
-#         connection.commit()
+        query = """SELECT * 
+        FROM images
+        ORDER BY created_at DESC 
+        LIMIT 3"""
+        cursor = connection.cursor()
+        cursor.execute(query)
+        last_pictures = cursor.fetchall()
+        #print("Fetched last pictures:", last_pictures)
 
-#         return Response(
-#             json.dumps({"message": "Admin user created successfully"}), 
-#             status=201, 
-#             headers={"Content-Type": "application/json"}
-#         )
-#     except Exception as e:
-#         return Response(
-#             json.dumps({"error": f"Something went wrong. Cause: {e}"}), 
-#             status=400,
-#             headers={"Content-Type": "application/json"}
-#         )
-#     finally:
-#         cursor.close()
-#         connection.close()
+        query = """SELECT * 
+        FROM users
+        ORDER BY created_at DESC 
+        LIMIT 3"""
+        cursor.execute(query)
+        last_users = cursor.fetchall()
+        #print("Fetched last users:", last_users)
+
+        events = get_recent_events()
+        #print("Fetched events:", events)
+
+        query = """SELECT COUNT(*) FROM users"""	
+        cursor.execute(query)
+        users_count = cursor.fetchone()[0]
+        #print("Users count:", users_count)
+
+        query = """SELECT COUNT(*) FROM images"""
+        cursor.execute(query)
+        images_count = cursor.fetchone()[0]
+        #print("Images count:", images_count)
+
+        response_data = {
+            "last_pictures": [{
+                "image_id": row[0],
+                "uploaded_image_url": row[1],
+                "user_id": row[2],
+                "created_at": row[3],
+                "updated_at": row[4],
+                "likes": row[5],
+                "description": row[6]
+            } for row in last_pictures],
+            "last_users": [{
+                "user_id": row[0],
+                "first_name": row[1],
+                "last_name": row[2],
+                "email": row[3],
+                "created_at": row[5],
+                "updated_at": row[6],
+                "is_active": row[7],
+                "is_admin": row[8]
+            } for row in last_users],
+            "events": events, # do not iterate here but rather return the array of events
+            "users_count": users_count,
+            "images_count": images_count
+        }
+
+       # print("Final response data:", response_data)
+        return jsonify(response_data), 200
+
+    except Exception as e:
+        print("ERROR:", e)
+        return jsonify({"error": f"Something went wrong. Cause: {e}"}), 500
+
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+            
+            
+def create_admin_user():
+    connection = connect()
+    cursor = connection.cursor()
+    try:
+        # query = """SELECT * FROM users WHERE is_admin = 1"""
+        # cursor.execute(query)
+        # result = cursor.fetchone()
+        # if result:
+        #     return Response(
+        #         json.dumps({"error": "Admin user already exists"}), 
+        #         status=400, 
+        #         headers={"Content-Type": "application/json"}
+        #     )
+
+        user = {
+            "id": None,
+            "first_name": "Admin",
+            "last_name": "User",
+            "email": "admin@example.com",
+            "password": "admin123",
+            "is_active": 1,
+            "is_admin": 1
+        }
+        query = """
+            INSERT INTO users (
+                first_name, 
+                last_name, 
+                email,
+                password,
+                is_active,
+                is_admin
+            )
+            VALUES (?,?,?,?,?,?);
+        """
+        cursor.execute(query, (
+            user["first_name"],
+            user["last_name"],
+            user["email"],
+            user["password"],
+            user["is_active"],
+            user["is_admin"]
+        ))
+        connection.commit()
+
+        return Response(
+            json.dumps({"message": "Admin user created successfully"}), 
+            status=201, 
+            headers={"Content-Type": "application/json"}
+        )
+    except Exception as e:
+        return Response(
+            json.dumps({"error": f"Something went wrong. Cause: {e}"}), 
+            status=400,
+            headers={"Content-Type": "application/json"}
+        )
+    finally:
+        cursor.close()
+        connection.close()
+
+
 if __name__ == "__main__":
     #create_admin_user()
+    #delete_events()
     app.run(debug=True, port=5001)

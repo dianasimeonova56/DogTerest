@@ -2,7 +2,7 @@ import { html, render } from '../../node_modules/lit-html/lit-html.js';
 import { main } from '../app.js';
 import { getPictures, uploadPicture } from '../functions.js';
 import { imageTemplate } from '../constants/imageTemplate.js';
-import { getUserData } from '../util.js';
+import { getUserData, showToast } from '../util.js';
 
 export const dashboardTemplate = (pictures, onClick, onUpload) => html`
 <section id="dashboard">
@@ -14,7 +14,7 @@ export const dashboardTemplate = (pictures, onClick, onUpload) => html`
         <div id="add" class="content circle-plus" @click=${onClick}>
         </div>
     </div>
-
+    
     <div id="overlay-form" class="overlay-form" style="display: none;">
         <div class="modal">
         <span id="closeModal" class="close" role="button" tabindex="0">&times;</span>
@@ -26,11 +26,14 @@ export const dashboardTemplate = (pictures, onClick, onUpload) => html`
                 <button type="button" @click=${onUpload}>Upload</button>
             </form>
         </div>
-    </div>
+    </div>	
 </section>
 `;
 
+
 export async function dashboardPage() {
+    let userData = await getUserData();
+    
     let pictures = [];
     try {
         pictures = await getPictures();
@@ -40,7 +43,7 @@ export async function dashboardPage() {
     }
     console.log(pictures);
     
-    render(dashboardTemplate(pictures, onClick, onUpload), main);
+    render(dashboardTemplate(pictures, onClick, onUpload, userData), main);
     
     function onClick(e) {
         document.getElementById('overlay-form').style.display = 'flex';
@@ -53,9 +56,8 @@ export async function dashboardPage() {
     }
 
     async function onUpload(e) {
-        debugger
         e.preventDefault();
-        const user = getUserData();
+        // const user = getUserData();
 
         const fileInput = document.getElementById("fileInput");
         const file = fileInput.files[0];
@@ -69,17 +71,22 @@ export async function dashboardPage() {
         const formData = new FormData();
         formData.append('file', file);
         formData.append('description', description);
-        formData.append('user_id', user.user_id);
+        formData.append('user_id', userData.user_id);
+        
 
         try {
             await uploadPicture(formData);
+            let lastPic = await getPictures();	
+            let image_id = lastPic[lastPic.length - 1].image_id;
             
             const newImageItem = document.createElement('div');
             newImageItem.className = 'item';
             newImageItem.innerHTML = `
                 <div class="content">
                     <img src="${URL.createObjectURL(file)}" alt="${file.name}" />
-                    <div class="overlay">${description}</div>
+                    <div class="overlay">${description}
+                    <a href="/details/${image_id}">See more...</a></div>
+                    
                 </div>
             `;
 
@@ -89,9 +96,14 @@ export async function dashboardPage() {
             );
 
             document.getElementById('overlay-form').style.display = 'none';
+            fileInput.value = '';
+            description = '';
+
+            showToast("Picture added successfully", "success");
         } catch (error) {
+            showToast("Picture wasn't added successfully", "error");
             console.error('Upload failed:', error);
-            alert(error);
+            //alert(error);
         }
     }
 }

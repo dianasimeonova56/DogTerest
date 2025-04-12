@@ -1,6 +1,6 @@
 import page from '../../node_modules/page/page.mjs';
 import { html, render } from '../../node_modules/lit-html/lit-html.js'
-import { createSubmitHandler } from '../util.js';
+import { createSubmitHandler, showToast } from '../util.js';
 import { main } from '../app.js';
 import { register } from '../auth.js';
 
@@ -40,20 +40,12 @@ export function signupPage() {
         
         try {
             await register(user);
+            showToast("Registration successful", "success");
             page.redirect("/login");
         } catch (error) {
-            alert(error.message);
+            //alert(error.message);
+            showToast(error.message, "error");
             console.log("Login error:", error);
         }
     }
 }
-
-
-// const form = document.querySelector('form');
-// const button = document.querySelector('button').addEventListener('click', signup);
-
-// function stopFormDefault(event) {
-//     event.preventDefault();
-//     // actual logic, e.g. validate the form
-//     console.log('Form submission cancelled.');
-// }

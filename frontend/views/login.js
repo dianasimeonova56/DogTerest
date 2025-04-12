@@ -1,4 +1,4 @@
-import { createSubmitHandler, setUserData } from '../util.js';
+import { createSubmitHandler, setUserData, showToast } from '../util.js';
 import { main } from '../app.js';
 import { login } from '../auth.js'
 import page from '../../node_modules/page/page.mjs';
@@ -31,10 +31,13 @@ export function loginPage() {
             return alert("All fields are required");
         }
         try {
+            debugger
             await login({ email, password });
+            showToast("Login successful");
             page.redirect("/dashboard");
         } catch (error) {
             alert(error.message);
+            showToast(error.message, "error");
             console.log("Login error:", error);
         }
     }

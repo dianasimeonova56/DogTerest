@@ -45,28 +45,3 @@ export const post = request.bind(null, "POST")
 export const put = request.bind(null, "PUT")
 export const del = request.bind(null, "DELETE")
 export const patch = request.bind(null, "PATCH")
-
-// export async function post(url, data) {
-//     try {
-//         const response = await fetch(url, {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//             },
-//             body: JSON.stringify(data), // Convert data to JSON
-//         });
-
-//         const responseData = await response.json(); // Avoid naming conflict
-
-//         if (response.ok) {
-//             // Return response data to the caller
-//             return responseData;
-//         } else {
-//             // Throw an error if the response is not OK
-//             throw new Error(responseData.error || "Login failed"); // Throw an error with the error message
-//         }
-//     } catch (error) {
-//         console.error("Network error:", error);
-//         throw new Error("Network error. Please try again later."); // Throw error for handling in the caller
-//     }
-// }

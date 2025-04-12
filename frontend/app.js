@@ -11,6 +11,7 @@ import { homePage } from './views/home.js';
 import { detailsPage } from './views/details.js';
 import { profilePage } from './views/profile.js';
 import { currUserProfilePage } from './views/currentUserProfile.js';
+import { adminDashboardPage } from './views/adminDashboard.js';
 
 export const main = document.querySelector('main')
 const root = document.querySelector('header')
@@ -25,6 +26,7 @@ page('/home', homePage);
 page('/details/:id', detailsPage)
 page('/current_user_profile', currUserProfilePage)
 page('/profile/:id', profilePage);
+page('/admin_dashboard', adminDashboardPage);
 
 page.start();
 

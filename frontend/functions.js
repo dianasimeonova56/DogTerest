@@ -17,7 +17,9 @@ const endpoints = {
     addFavourite: '/add_to_favs/',
     removeFromFavs: '/remove_from_favs/',
     getFavPictures: '/get_favs/',
-    getUserFavPictures: '/get_user_favs/'
+    getUserFavPictures: '/get_user_favs/',
+    getAdminDashboardData: '/admin_dashboard_data',
+    // getRecentEvents: '/get_recet_events',
 };
 
 export async function getUsers() {
@@ -97,3 +99,11 @@ export async function getUserFavPictures(id, data) {
     console.log(id, data);
     return get(endpoints.getUserFavPictures + `${id}/${data}`);
 }
+
+export async function getAdminDashboardData() {
+    return get(endpoints.getAdminDashboardData);
+}
+
+// export async function getRecentEvents() {
+//     return get(endpoints.getRecentEvents);
+// }

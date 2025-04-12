@@ -67,6 +67,7 @@ export async function adminPage() {
         try {
             await updateUser(user);
             alert('User updated successfully')
+            
            // page.reload
         } catch (error) {
             alert(error.message);

@@ -1,7 +1,7 @@
 import { html, render } from '../../node_modules/lit-html/lit-html.js';
 import { main } from '../app.js';
 import { getFavPictures, getUserLikes, updateUser } from '../functions.js';
-import { clearUserData, getUserData } from '../util.js';
+import { clearUserData, getUserData, showToast } from '../util.js';
 import page from '../../node_modules/page/page.mjs';
 import { imageTemplate } from '../constants/imageTemplate.js';
 
@@ -57,10 +57,12 @@ export async function currUserProfilePage() {
         }
         try {
             await updateUser(toEdit);
-            alert('User updated successfully')
+            showToast('User updated successfully!', 'success')
+            //alert('User updated successfully')
             update();
         } catch (e) {
-            alert(e.message);
+            showToast(e.message, "error")
+            //alert(e.message);
             console.log("Error: " + e.message);
         }
     }
@@ -69,11 +71,13 @@ export async function currUserProfilePage() {
         if(confirm('Are you sure you want to delete your profile?')) {
             try {
                 await deleteUser({"user_id": userData.user_id});
-                alert('User deleted successfully!');
+                showToast('User deleted successfully!', 'success')
+                //alert('User deleted successfully!');
                 clearUserData();
                 page.redirect('/home');
             } catch(e) {
-                alert(e.message);
+                showToast(e.message, "error")
+                //alert(e.message);
                 console.log("Error: " + e.message);
             }
         }

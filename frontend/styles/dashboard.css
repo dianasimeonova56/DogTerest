@@ -27,19 +27,44 @@ header {
 }
 
 .toast {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  background: #4caf50;
-  color: white;
-  padding: 12px 20px;
-  border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  display: none;
-  z-index: 9999; /* da stoi nad ws drugi elementi */
-  font-size: 14px;
-  opacity: 1;
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: #4caf50;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    font-size: 14px;
+    opacity: 0; /* Start off invisible */
+    visibility: hidden; /* Start off hidden */
+    display: none; /* Start off hidden */
+    z-index: 9999;
 }
+
+.toast.show {
+    display: block; /* Make the toast visible */
+    animation: toastAnimation 4s ease-in-out forwards; /* Apply animation */
+}
+
+@keyframes toastAnimation {
+    0% {
+      opacity: 0;
+      visibility: visible;
+    }
+    20% {
+      opacity: 1;
+      visibility: visible;
+    }
+    80% {
+      opacity: 1;
+      visibility: visible;
+    }
+    100% {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
 
 .user-admin-panel:hover {
     background-color: #cdb2f5;

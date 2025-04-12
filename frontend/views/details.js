@@ -163,7 +163,7 @@ export async function detailsPage(ctx) {
             showToast("Picture removed from faves", "success");
             update();
         } catch (e) {
-            alert(e);
+            showToast(e.message, "error")
             console.log('Error removing picture from favourites:', e);
         }
     }

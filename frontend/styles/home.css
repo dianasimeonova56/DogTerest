@@ -1,45 +1,112 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
 
-.home-page img {
-    width: 300px;
-    height: 300px;
-    margin: 20px;
-    display: flex;
-    position: relative;
-}
-
 #home {
+    font-family: 'Poppins', Arial, sans-serif;
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-wrap: wrap;
-    padding-top: 60px;
-    padding: 20px;
+    padding: 60px 20px;
+    min-height: 100vh;
+     background: linear-gradient(to right, #FAF3E0, #EDE7F6);
+     height: 100vh;
+     overflow: hidden;
 }
 
-.home-page p {
-    font-family: 'Poppins', Arial, sans-serif;
-    font-weight: 400;
+.home-page {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1200px;
+    width: 100%;
+    gap: 50px;
+    flex-wrap: wrap;
+}
+
+.home-content {
+    flex: 1 1 500px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.home-content h1 {
+    font-size: 3rem;
+    font-weight: 600;
+    color: #cdb2f5; 
+    margin-bottom: 20px;
+}
+
+.home-content p {
     font-size: 18px;
-    line-height: 1.6;
+    font-weight: 300;
     color: #4A4A4A;
-    text-align: center;
-    max-width: 600px;
-    margin: 20px auto;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    background: rgba(255, 255, 255, 0.9);
     padding: 15px 20px;
-    background-color: rgba(255, 255, 255, 0.85);
-    border-left: 5px solid #cdb2f5;
+    /* border-left: 5px solid #cdb2f5; */
     border-radius: 8px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-
-    letter-spacing: 0.5px;
-    font-weight: 300;  
-    text-shadow: 0.5px 0.5px 1px rgba(0, 0, 0, 0.1);
+    transition: background 0.5s ease, transform 0.3s ease;;
 }
 
-@media (max-width: 768px) {
-    .info-text {
+.home-content p:hover{
+    background-color: #cdb2f5;
+    transform: translateY(-6px);
+}
+
+.button-group-home {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.button-group-home a {
+    background: #cdb2f5; 
+    color: white; 
+    padding: 12px 24px;
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: background 0.3s ease;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.button-group-home a:hover {
+    background-color: #543aa7;
+    
+}
+
+.home-image {
+    flex: 1 1 400px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.home-image img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+}
+
+
+@media (max-width: 900px) {
+    .home-page {
+        flex-direction: column-reverse;
+        text-align: center;
+        gap: 30px;
+    }
+
+    .home-content h1 {
+        font-size: 2.5rem;
+    }
+
+    .home-content p {
         font-size: 16px;
-        padding: 10px 15px;
+    }
+
+    .home-image img {
+        max-width: 300px;
     }
 }

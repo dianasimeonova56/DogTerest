@@ -26,42 +26,17 @@ export function createSubmitHandler(callback) {
     }
 }
 
+const toast = document.querySelector('.toast');
 export function showToast(message, type = "success") { // ako nqma podaden tip -> da e success
-    const toast = document.querySelector('.toast');
-  
+    toast.style.display = 'block';
+    toast.classList.add('show');
+
     toast.textContent = message;
   
     if (type === "error") toast.style.background = "#f44336";
   
-    toast.style.display = "block";
-    
-    // setTimeout(() => {
-    //   //toast.style.display = "none";
-    //   toast.style.opacity-- 
-    // }, 3000); // 3 seconds
-
-    
-    let opacity = 1;
-    let stopF = true, requestId;
-    let fadeOut = () => {
-        if(stopF) {
-            setTimeout(() => {
-                if (opacity > 0) {
-                opacity -= 0.1;
-                toast.style.opacity = opacity;
-                requestId = requestAnimationFrame(fadeOut);
-            } else if (opacity <= 0) {
-                stopF = false;
-                }
-            }, 1000/?);
-        } else {
-            cancelAnimationFrame(requestId);
-                toast.style.display = 'none'; 
-        }
-        
-    }
-    fadeOut();
-    //setTimeout(fadeOut(), 3000);
-
-    
-  }
+    setTimeout(() => {
+    toast.classList.remove('show');
+    toast.style.display = 'none'; // Hide it completely after the animation
+  }, 4000); // 4000ms to match the animation duration
+}

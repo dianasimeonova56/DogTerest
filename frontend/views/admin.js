@@ -66,7 +66,8 @@ export async function adminPage() {
 
         try {
             await updateUser(user);
-            alert('User updated successfully')
+            showToast('User updated successfully', "success")
+            //alert('User updated successfully')
             
            // page.reload
         } catch (error) {
@@ -80,9 +81,11 @@ export async function adminPage() {
         if (window.confirm('Are you sure you want to delete this user?')) {
             try {
                 await deleteUser({"user_id": user_id});
-                alert('User deleted successfully')
+                showToast('User deleted successfully', "success")
+                //alert('User deleted successfully')
                 page.reload();
             } catch (error) {
+                
                 alert(error.message);
                 console.log("Login error:", error);
             }

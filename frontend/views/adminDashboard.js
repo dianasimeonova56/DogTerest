@@ -63,7 +63,8 @@ export async function adminDashboardPage() {
         imageCount = data.images_count;
         userCount = data.users_count;
     } catch (e) {
-       alert(e.message);
+        //showToast(e.message, "error")
+        alert(e.message);
         console.log("Error: " + e.message);
     }
     render(adminDashboradTemplate(imageCount, userCount, images, users, events), main);

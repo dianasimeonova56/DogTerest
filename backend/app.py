@@ -4,7 +4,7 @@ import os
 from flask import Flask, jsonify, request, Response
 from storage import connect
 from flask_cors import CORS
-from storage import *
+from .storage import *
 
 app = Flask("app")
 CORS(app, 

@@ -3,7 +3,7 @@ import json
 import os
 from flask import Flask, jsonify, request, Response
 from flask_cors import CORS
-from backend.storage import *
+from .storage import *
 
 app = Flask("app")
 CORS(app, 

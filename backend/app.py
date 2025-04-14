@@ -16,8 +16,6 @@ CORS(app,
 FILE_STORAGE_PATH = "imgs"
 if not os.path.exists(FILE_STORAGE_PATH):
     os.makedirs(FILE_STORAGE_PATH)
- 
- 
 
 @app.route("/version", methods=["GET"])
 def version():
@@ -30,7 +28,6 @@ def version():
 
 def log_event(event_data):
     connection = connect()
-    #print("DB used:", os.path.abspath("D:\\DogTerest\\backend\\app.db"))
     cursor = connection.cursor()
     
     query = """INSERT INTO events (event_name, user_id, user_first_name, user_last_name) 
@@ -51,7 +48,7 @@ def delete_events():
 
     cursor.close()
     connection.close()
-# @app.route("/get_recent_events", methods=["GET"]) 
+@app.route("/get_recent_events", methods=["GET"]) 
 def get_recent_events():
         connection = connect()
         cursor = connection.cursor()
@@ -125,7 +122,6 @@ def signin():
         return Response(json.dumps({"error": f"User not found. Cause: {e}"}), 
                         status=404, 
                         headers={"Content-Type": "application/json"})
-
 
 @app.route("/signup", methods=["POST"])
 def signup():
@@ -214,7 +210,6 @@ def get_user(user_id):
         cursor.execute(query, (user_id,))
         result = cursor.fetchone()
 
-        # Transforming query result to JSON
         user = {
                 "user_id": result[0],
                 "first_name": result[1],
@@ -227,6 +222,44 @@ def get_user(user_id):
             }
 
         return jsonify({"user": user}), 200
+    except Exception as e:
+        return jsonify({"error": f"Something went wrong. Cause: {e}"}), 500
+    finally:
+        if cursor:
+            cursor.close()
+        if connection:
+            connection.close()
+
+@app.route("/get_user_pictures/<int:user_id>", methods=["GET"])
+def get_user_pictures(user_id):
+    connection = connect()
+    try:
+        query = """
+        SELECT * 
+        FROM images 
+        INNER JOIN users 
+        ON users.user_id = images.user_id
+        WHERE users.user_id = ?
+        """
+        cursor = connection.cursor()
+        cursor.execute(query, (user_id,))
+        result = cursor.fetchall()
+        
+        images = []
+        
+        for row in result:
+            image = {
+                "image_id": row[0],
+                "uploaded_image_url": row[1],
+                "user_id": row[2],
+                "created_at": row[3],
+                "updated_at": row[4],
+                "likes": row[5],
+                "description": row[6]
+            }
+            images.append(image)
+
+        return jsonify({"images": images}), 200
     except Exception as e:
         return jsonify({"error": f"Something went wrong. Cause: {e}"}), 500
     finally:

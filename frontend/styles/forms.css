@@ -10,6 +10,33 @@
     box-sizing: border-box;
 }
 
+#pics.form-container  {
+    width: 48%;
+}
+
+.pictures-container {
+    display: flex;
+    gap: 20px;
+    justify-content: space-between; 
+    flex-wrap: wrap;
+}
+
+#profile h1 {
+    text-align: center;
+    font-size: 24px;
+    color: #cdb2f5;
+    margin: 10px 0 20px;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    padding: 30px; 
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); 
+    width: 48%;
+    max-width: 400px; 
+    text-align: center;
+    margin: auto; 
+    box-sizing: border-box;
+}
+
 .form-container h1 {
     margin: 0 0 20px; 
     font-size: 24px; 

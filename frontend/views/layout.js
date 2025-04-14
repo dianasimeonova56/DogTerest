@@ -10,9 +10,9 @@ export const layoutTemplate = (userData) => html`
 </div>
 <div>
 <a href="/home">Home</a>
+<a href="/dashboard">Dashboard</a>
 ${userData
         ? html`
-    <a href="/dashboard">Dashboard</a>
     <a href="/current_user_profile">Profile</a>
 </div>
 <div class="user">

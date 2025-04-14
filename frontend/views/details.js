@@ -20,7 +20,8 @@ const detailsTemplate = (image, onEdit, onDelete, onLike, addToFavs, onUnlike, r
                 <p id="description" name="description">${image.description}</p>`}
         
         <div id="likes" @click=${onLikesClick}>Likes: ${image.likes}</div>
-        <div class="button-group">
+        
+        ${userData ? html`<div class="button-group">
             ${image.canEdit
         ? html`
                     <button type="button" @click=${onEdit}>Edit</button>
@@ -34,8 +35,10 @@ const detailsTemplate = (image, onEdit, onDelete, onLike, addToFavs, onUnlike, r
                 ? html`<button type="button" @click=${removeFromFavs}>Remove from favourites</button>`
                 : html`<button type="button" @click=${addToFavs}>Add to favourites</button>`
             }`
-    }
+        }
         </div>
+        ` : html`<p>If you want to like this picture, <a href="./login">log in</a></p>`}
+        
     </div>
     <div id="overlay-likes" class="overlay-form">
         <div class="modal">
@@ -54,26 +57,26 @@ export async function detailsPage(ctx) {
     const item = await getPictureById(id);
 
     const userData = await getUserData();
-    console.log(userData);
+   // console.log(userData);
     
     const owner = await getUser(item.image.user_id)
     let likes = await getLikes(id);
-
-    let userLiked = await getUserLikes(id, userData.user_id);
-    let hasLiked = false;
-    let userAdded = await getUserFavPictures(id, userData.user_id);
-
-    let hasBeenAdded = false;
-    if (userLiked.result != 0) {
-        hasLiked = true;
-    }
-    if (userAdded.result != 0) {
-        hasBeenAdded = true;
-    }
+   
 
     if (userData) {
+        let userLiked = await getUserLikes(id, userData.user_id);
+        let hasLiked = false;
+        let userAdded = await getUserFavPictures(id, userData.user_id);
+    
+        let hasBeenAdded = false;
+        if (userLiked.result != 0) {
+            hasLiked = true;
+        }
+        if (userAdded.result != 0) {
+            hasBeenAdded = true;
+        }
         item.image.canEdit = userData.user_id === item.image.user_id || userData.is_admin === 1;
-        console.log(item.image.canEdit);
+        //console.log(item.image.canEdit);
         item.image.hasLiked = hasLiked;
         item.image.hasBeenAdded = hasBeenAdded;
         item.image.likes = likes.likes_count;
@@ -171,15 +174,16 @@ export async function detailsPage(ctx) {
     async function onLikesClick() {
         
         likes = await getLikes(id);
-        console.log(likes);
+        //console.log(likes);
         
         document.getElementById('likes-list').innerHTML = likes.likes_count > 0 
-        ? likes.likes.map(like => likeTemplate(like)) 
+        ? likes.likes.map(like => likeTemplate(like)).join('')
         : '<p>No likes found.</p>';
+
         
         document.getElementById('overlay-likes').style.display = 'flex';
         document.getElementById('closeModal').onclick = function (e) {
-            e.stopPropagation();
+            //e.stopPropagation();
             document.getElementById('overlay-likes').style.display = 'none';
         };
 

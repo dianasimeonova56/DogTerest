@@ -4,17 +4,19 @@ import { getPictures, uploadPicture } from '../functions.js';
 import { imageTemplate } from '../constants/imageTemplate.js';
 import { getUserData, showToast } from '../util.js';
 
-export const dashboardTemplate = (pictures, onClick, onUpload) => html`
+export const dashboardTemplate = (pictures, onClick, onUpload,userData) => html`
 <section id="dashboard">
     ${pictures.length > 0 
         ? pictures.map(imgs => imageTemplate(imgs))
         : html`<p>No pictures found. Click the + button to add a new one.</p>`}
    
-    <div class="item">
-        <div id="add" class="content circle-plus" @click=${onClick}>
-        </div>
-    </div>
     
+    ${userData ?
+        html`
+        <div class="item">
+            <div id="add" class="content circle-plus" @click=${onClick}>
+            </div>
+        </div>
     <div id="overlay-form" class="overlay-form" style="display: none;">
         <div class="modal">
         <span id="closeModal" class="close" role="button" tabindex="0">&times;</span>
@@ -26,13 +28,17 @@ export const dashboardTemplate = (pictures, onClick, onUpload) => html`
                 <button type="button" @click=${onUpload}>Upload</button>
             </form>
         </div>
-    </div>	
+    </div>` : ''
+    }
+    
 </section>
 `;
 
 
 export async function dashboardPage() {
     let userData = await getUserData();
+    console.log(userData);
+    
     
     let pictures = [];
     try {
@@ -47,10 +53,10 @@ export async function dashboardPage() {
     
     function onClick(e) {
         document.getElementById('overlay-form').style.display = 'flex';
-        console.log('Form overlay is displayed.');
+        //console.log('Form overlay is displayed.');
 
         document.getElementById('closeModal').onclick = function (e) {
-            e.stopPropagation(); 
+            //e.stopPropagation(); 
             document.getElementById('overlay-form').style.display = 'none';
         };
     }
@@ -59,16 +65,16 @@ export async function dashboardPage() {
         e.preventDefault();
         // const user = getUserData();
 
-        const fileInput = document.getElementById("fileInput");
-        const file = fileInput.files[0];
-        const description = document.getElementById("description").value;
+        let fileInput = document.getElementById("fileInput");
+        let file = fileInput.files[0];
+        let description = document.getElementById("description").value;
 
         if (!file) {
             alert('Please select a file before uploading.');
             return;
         }
 
-        const formData = new FormData();
+        let formData = new FormData();
         formData.append('file', file);
         formData.append('description', description);
         formData.append('user_id', userData.user_id);

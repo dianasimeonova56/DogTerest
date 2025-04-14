@@ -3,6 +3,7 @@ import { get, post, patch, del } from './api.js'
 const endpoints = {
     getPictures: '/get_pictures',
     getUser: '/get_user/',
+    getUserPictures: '/get_user_pictures/',
     updateUser: '/update_user',
     deleteUser: '/delete_user',
     uploadPicture: '/upload_picture',
@@ -29,6 +30,10 @@ export async function getUsers() {
 
 export async function getUser(id) {
     return await get(endpoints.getUser + id);
+}
+
+export async function getUserPictures(id) {
+    return await get(endpoints.getUserPictures + id);
 }
 
 export async function getPictures() {
@@ -67,7 +72,7 @@ export async function getLikes(id) {
 }
 
 export async function getUserLikes(id, data) {
-    console.log(id, data);
+    //console.log(id, data);
     return get(endpoints.getUserLikes + `${id}/${data}`);
 }
 
@@ -103,7 +108,3 @@ export async function getUserFavPictures(id, data) {
 export async function getAdminDashboardData() {
     return get(endpoints.getAdminDashboardData);
 }
-
-// export async function getRecentEvents() {
-//     return get(endpoints.getRecentEvents);
-// }

@@ -1,7 +1,6 @@
 import { html, render } from '../../node_modules/lit-html/lit-html.js'
 
 export const likeTemplate = (like) => {
-   
     const date = like.created_at;
     const dateObj = new Date(date.replace(" ", "T"));
     const formattedDate = `${dateObj.getDate()}.${dateObj.getMonth() + 1}`;
@@ -13,5 +12,5 @@ export const likeTemplate = (like) => {
          </p>
          <span class="like-date">${formattedDate}</span>
       </div>
-    `;
+    `
  };

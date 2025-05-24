@@ -34,7 +34,6 @@ export const adminTemplate = (onUserClick, onDelete, onEdit, users) => html`
 
 export async function adminPage() {
     const users = await getUsers();
-    console.log(users);
 
     render(adminTemplate(onUserClick, onDelete, onEdit, users), main)
 
@@ -47,7 +46,7 @@ export async function adminPage() {
     }
 
     async function onEdit(e) {
-        debugger
+        
         e.preventDefault();
         let is_admin = document.getElementById('role').value;
         is_admin = is_admin === 'user' ? 0 : 1;
@@ -68,9 +67,6 @@ export async function adminPage() {
         try {
             await updateUser(user);
             showToast('User updated successfully', "success")
-            //alert('User updated successfully')
-            
-           // page.reload
         } catch (error) {
             alert(error.message);
             console.log("Login error:", error);
@@ -83,7 +79,6 @@ export async function adminPage() {
             try {
                 await deleteUser({"user_id": user_id});
                 showToast('User deleted successfully', "success")
-                //alert('User deleted successfully')
                 page.reload();
             } catch (error) {
                 

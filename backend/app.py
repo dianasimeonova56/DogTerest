@@ -105,11 +105,8 @@ def signin():
         user["updated_at"] = result[6]
         user["is_active"] = result[7]
         user["is_admin"] = result[8]
-        print(user)
+        
         if user["password"] == body["password"]:
-            # return Response(json.dumps({"data": {"id": user["user_id"], "first_name": user["first_name"], "is_admin": user["is_admin"]}}), 
-            #                 status=200, 
-            #                 headers={"Content-Type": "application/json"})
             return Response(json.dumps({"data": user}), 
                             status=200, 
                             headers={"Content-Type": "application/json"})
@@ -592,8 +589,7 @@ def like_picture(image_id):
                 "user_id": user_id,
                 "user_first_name": result[1],
                 "user_last_name": result[2]
-            }   
-            #print(event_data)
+            }
         
         log_event(event_data)
         return jsonify({"result": "Liking was successful", "event_data": event_data}), 200

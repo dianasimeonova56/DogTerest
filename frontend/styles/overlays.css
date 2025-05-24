@@ -92,7 +92,6 @@
 }
 
 .circle-plus::before {
-    content: "";
     width: 2px;
     height: 30px;
     background-color: white;
@@ -100,7 +99,6 @@
 }
 
 .circle-plus::after {
-    content: "";
     width: 30px;
     height: 2px;
     background-color: white;

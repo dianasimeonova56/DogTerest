@@ -5,7 +5,6 @@ import { getUserData } from '../util.js';
 export const homeTemplate = (userData) => html`
 <section id="home">
     <div class="home-page">
-        <!-- Left: text content -->
         <div class="home-content">
             <h1>Welcome to DogTerest!</h1>
             <p>Your one-stop place for dog lovers. Share, explore, and connect with fellow dog enthusiasts.</p>

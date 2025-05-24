@@ -57,7 +57,6 @@ export async function detailsPage(ctx) {
     const item = await getPictureById(id);
 
     const userData = await getUserData();
-   // console.log(userData);
     
     const owner = await getUser(item.image.user_id)
     let likes = await getLikes(id);
@@ -76,7 +75,6 @@ export async function detailsPage(ctx) {
             hasBeenAdded = true;
         }
         item.image.canEdit = userData.user_id === item.image.user_id || userData.is_admin === 1;
-        //console.log(item.image.canEdit);
         item.image.hasLiked = hasLiked;
         item.image.hasBeenAdded = hasBeenAdded;
         item.image.likes = likes.likes_count;
@@ -174,7 +172,6 @@ export async function detailsPage(ctx) {
     async function onLikesClick() {
         
         likes = await getLikes(id);
-        //console.log(likes);
         
         document.getElementById('likes-list').innerHTML = likes.likes_count > 0 
         ? likes.likes.map(like => likeTemplate(like)).join('')
@@ -182,8 +179,7 @@ export async function detailsPage(ctx) {
 
         
         document.getElementById('overlay-likes').style.display = 'flex';
-        document.getElementById('closeModal').onclick = function (e) {
-            //e.stopPropagation();
+        document.getElementById('closeModal').onclick = function () {
             document.getElementById('overlay-likes').style.display = 'none';
         };
 

@@ -1,8 +1,5 @@
 html,
 body {
-    /* 
-    align-items: center;
-    justify-content: center; */
     height: 100%;
     margin: 0;
     overflow-x: hidden;
@@ -36,15 +33,15 @@ header {
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     font-size: 14px;
-    opacity: 0; /* Start off invisible */
-    visibility: hidden; /* Start off hidden */
-    display: none; /* Start off hidden */
+    opacity: 0;
+    visibility: hidden;
+    display: none; 
     z-index: 9999;
 }
 
 .toast.show {
-    display: block; /* Make the toast visible */
-    animation: toastAnimation 4s ease-in-out forwards; /* Apply animation */
+    display: block;
+    animation: toastAnimation 4s ease-in-out forwards;
 }
 
 @keyframes toastAnimation {
@@ -89,13 +86,12 @@ header {
 
 .profile-container {
     display: flex;
-    align-items: flex-start;  /* Align items to the top */
-    justify-content: center;  /* Center the items horizontally */
-    flex-wrap: wrap;  /* Allow items to wrap to the next line */
-    gap: 20px;  /* Space between the items */
-    padding-top: 60px;  /* Adds padding to the top */
+    align-items: flex-start;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding-top: 60px;
     padding: 20px;
-    /* box-sizing: border-box; */
 }
 
 .profile-div {
@@ -103,10 +99,10 @@ header {
     border-radius: 10px;
     padding: 30px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-    width: 90%;  /* Makes the div take 90% of the available space */
-    max-width: 400px;  /* Limits the maximum width */
-    margin: auto;  /* Centers the div */
-    box-sizing: border-box;  /* Includes padding in the width/height calculation */
+    width: 90%;
+    max-width: 400px;
+    margin: auto; 
+    box-sizing: border-box;
 }
 
 

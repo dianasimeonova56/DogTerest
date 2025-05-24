@@ -105,25 +105,3 @@ cursor.execute(query)
 connection.commit()
 cursor.close()
 connection.close()
-# Table users 
-#id INTEGER PRIMARY KEY AUTOINCREMENT,
-    # first_name VARCHAR,
-    # last_name VARCHAR,
-    # email VARCHAR,
-    # password VARCHAR
-    
-# Table user_files
-    # user_file_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    # uploaded_image_url VARCHAR,
-    # user_id INTEGER FK,
-    # created_at TIMESTAMP
-
-# Table favourite_pictures
-    # fav_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    # user_id INTEGER,
-    # image_id INTEGER
-    
-# Table likes
-    # like_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    # user_id INTEGER,
-    # created_at TIMESTAMP

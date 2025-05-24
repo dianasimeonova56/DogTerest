@@ -20,10 +20,8 @@ const loginTemplate = (onLogin) => html`
 
 export function loginPage() {
     render(loginTemplate(createSubmitHandler(onLogin)), main);
-    //e.preventDefault;
 
-    async function onLogin(event) {
-        // event.preventDefault();
+    async function onLogin() {
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
 
@@ -31,7 +29,6 @@ export function loginPage() {
             return alert("All fields are required");
         }
         try {
-            debugger
             await login({ email, password });
             showToast("Login successful");
             page.redirect("/dashboard");

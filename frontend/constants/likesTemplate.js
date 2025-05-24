@@ -1,5 +1,3 @@
-import { html, render } from '../../node_modules/lit-html/lit-html.js'
-
 export const likeTemplate = (like) => {
     const date = like.created_at;
     const dateObj = new Date(date.replace(" ", "T"));

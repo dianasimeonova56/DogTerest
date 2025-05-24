@@ -8,7 +8,7 @@ const signupTemplate = (signup) => html`
     <section>
         <div class="form-container">
             <h1>Sign up</h1>
-            <form @submit=${signup}>
+            <form @submit=${onSignup}>
                 <input type="text" name="firstName" placeholder="First Name" required id="firstName">
                 <input type="text" name="lastName" placeholder="Last Name" required id="lastName">
                 <input type="text" name="email" placeholder="Email" required id="email">
@@ -23,10 +23,9 @@ const signupTemplate = (signup) => html`
     </section>
 `
 export function signupPage() {
-    render(signupTemplate(createSubmitHandler(signup)), main)
+    render(signupTemplate(createSubmitHandler(onSignup)), main)
 
-    async function signup({firstName, lastName, email, password, rePass, pop, tac}) {
-        console.log(firstName, lastName, email, password, rePass, pop, tac);
+    async function onSignup({firstName, lastName, email, password, rePass, pop, tac}) {
         if (password == "" || (password != rePass)) {
             return alert("passwords are different");
         }
@@ -43,7 +42,6 @@ export function signupPage() {
             showToast("Registration successful", "success");
             page.redirect("/login");
         } catch (error) {
-            //alert(error.message);
             showToast(error.message, "error");
             console.log("Login error:", error);
         }

@@ -5,7 +5,6 @@ export function getUserData() {
 }
 
 export function setUserData(data) {
-    console.log(data);
     return localStorage.setItem(itemName, JSON.stringify(data))
 }
 
@@ -27,7 +26,7 @@ export function createSubmitHandler(callback) {
 }
 
 const toast = document.querySelector('.toast');
-export function showToast(message, type = "success") { // ako nqma podaden tip -> da e success
+export function showToast(message, type = "success") { // ако няма подаден тип, по default е "success"
     toast.style.display = 'block';
     toast.classList.add('show');
 
@@ -37,6 +36,6 @@ export function showToast(message, type = "success") { // ako nqma podaden tip -
   
     setTimeout(() => {
     toast.classList.remove('show');
-    toast.style.display = 'none'; // Hide it completely after the animation
+    toast.style.display = 'none';
   }, 4000); // 4000ms to match the animation duration
 }

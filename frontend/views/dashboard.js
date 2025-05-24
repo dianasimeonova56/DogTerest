@@ -53,17 +53,14 @@ export async function dashboardPage() {
     
     function onClick(e) {
         document.getElementById('overlay-form').style.display = 'flex';
-        //console.log('Form overlay is displayed.');
 
         document.getElementById('closeModal').onclick = function (e) {
-            //e.stopPropagation(); 
             document.getElementById('overlay-form').style.display = 'none';
         };
     }
 
     async function onUpload(e) {
         e.preventDefault();
-        // const user = getUserData();
 
         let fileInput = document.getElementById("fileInput");
         let file = fileInput.files[0];
@@ -109,7 +106,6 @@ export async function dashboardPage() {
         } catch (error) {
             showToast("Picture wasn't added successfully", "error");
             console.error('Upload failed:', error);
-            //alert(error);
         }
     }
 }

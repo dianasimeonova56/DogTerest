@@ -71,11 +71,9 @@ export async function currUserProfilePage() {
         try {
             await updateUser(toEdit);
             showToast('User updated successfully!', 'success')
-            //alert('User updated successfully')
             update();
         } catch (e) {
             showToast(e.message, "error")
-            //alert(e.message);
             console.log("Error: " + e.message);
         }
     }
@@ -85,12 +83,10 @@ export async function currUserProfilePage() {
             try {
                 await deleteUser({"user_id": userData.user_id});
                 showToast('User deleted successfully!', 'success')
-                //alert('User deleted successfully!');
                 clearUserData();
                 page.redirect('/home');
             } catch(e) {
                 showToast(e.message, "error")
-                //alert(e.message);
                 console.log("Error: " + e.message);
             }
         }

@@ -1,8 +1,9 @@
 
 # frontend
-1. npm install page
-2. npm install lit-html
-3. npm install -g http-server
+1. npm install
+2. npm install page
+3. npm install lit-html
+4. npm install -g http-server
 
 # backend
 

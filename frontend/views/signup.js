@@ -4,7 +4,7 @@ import { createSubmitHandler, showToast } from '../util.js';
 import { main } from '../app.js';
 import { register } from '../auth.js';
 
-const signupTemplate = (signup) => html`
+const signupTemplate = (onSignup) => html`
     <section>
         <div class="form-container">
             <h1>Sign up</h1>

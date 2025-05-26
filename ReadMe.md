@@ -10,7 +10,7 @@
 python -m venv venv
 1. **Create and activate a virtual environment**
 
-# to acitvate the virtual env
+- to activate the virtual env
 venv\Scripts\activate  (cmd)
 or 
 venv\Scripts\Activate.ps1 (powershell)
